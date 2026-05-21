@@ -1,11 +1,14 @@
 package com.contratech.cadastrocontrato.dao;
 
-import com.contratech.cadastrocontrato.connection.ConnectionFactory;
-import com.contratech.cadastrocontrato.model.Parceiro;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.contratech.cadastrocontrato.connection.ConnectionFactory;
+import com.contratech.cadastrocontrato.model.Parceiro;
 
 /**
  * DAO responsável por todas as operações de banco da entidade Parceiro.
@@ -61,7 +64,6 @@ public boolean documentoJaExiste(String documento, int idExcluir) {
 
         } catch (SQLException e) {
             System.err.println("[ParceiroDAO] Erro ao inserir: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -87,7 +89,6 @@ public boolean documentoJaExiste(String documento, int idExcluir) {
 
         } catch (SQLException e) {
             System.err.println("[ParceiroDAO] Erro ao alterar: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -103,7 +104,6 @@ public boolean documentoJaExiste(String documento, int idExcluir) {
 
         } catch (SQLException e) {
             System.err.println("[ParceiroDAO] Erro ao excluir: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -122,7 +122,6 @@ public boolean documentoJaExiste(String documento, int idExcluir) {
 
         } catch (SQLException e) {
             System.err.println("[ParceiroDAO] Erro ao listar: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return lista;
@@ -144,7 +143,6 @@ public boolean documentoJaExiste(String documento, int idExcluir) {
 
         } catch (SQLException e) {
             System.err.println("[ParceiroDAO] Erro ao pesquisar por nome: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return lista;
@@ -166,7 +164,6 @@ public boolean documentoJaExiste(String documento, int idExcluir) {
 
         } catch (SQLException e) {
             System.err.println("[ParceiroDAO] Erro ao pesquisar por CNPJ: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return lista;
@@ -192,7 +189,6 @@ public boolean documentoJaExiste(String documento, int idExcluir) {
 
         } catch (SQLException e) {
             System.err.println("[ParceiroDAO] Erro ao verificar CNPJ: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return false;

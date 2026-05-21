@@ -10,9 +10,18 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -79,9 +88,16 @@ public class TelaParceiro {
         // === TABELA (lado direito) ===
         VBox painelTabela = criarPainelTabela();
 
+        // Se o usuário for apenas visualizador, desabilita o formulário (visualização somente)
+        if (usuarioLogado.getTipoUsuario() == com.contratech.cadastrocontrato.model.Usuario.TipoUsuario.VISUALIZADOR) {
+            formulario.setDisable(true);
+            formulario.setStyle(formulario.getStyle() + "-fx-opacity: 0.98;");
+        }
+
         // === LAYOUT CENTRAL ===
         HBox centro = new HBox(15, formulario, painelTabela);
         centro.setPadding(new Insets(15));
+        centro.setFillHeight(true);
         HBox.setHgrow(painelTabela, Priority.ALWAYS);
 
         // === LAYOUT PRINCIPAL ===
@@ -94,7 +110,7 @@ public class TelaParceiro {
         stage.setTitle("Parceiros - CadastroContrato");
         stage.setScene(scene);
         stage.setResizable(true);
-        stage.centerOnScreen();
+        stage.setMaximized(true);
 
         atualizarTabela();
     }
@@ -108,15 +124,19 @@ public class TelaParceiro {
 
         txtRazaoSocial = new TextField();
         txtRazaoSocial.setPromptText("Nome / Razão Social");
+        txtRazaoSocial.setMaxWidth(Double.MAX_VALUE);
 
         txtCnpjCpf = new TextField();
         txtCnpjCpf.setPromptText("CNPJ ou CPF (somente números)");
+        txtCnpjCpf.setMaxWidth(Double.MAX_VALUE);
 
         txtEndereco = new TextField();
         txtEndereco.setPromptText("Rua, número, complemento");
+        txtEndereco.setMaxWidth(Double.MAX_VALUE);
 
         txtCidade = new TextField();
         txtCidade.setPromptText("Cidade");
+        txtCidade.setMaxWidth(Double.MAX_VALUE);
 
         txtUf = new TextField();
         txtUf.setPromptText("UF (ex: SC)");
@@ -130,6 +150,7 @@ public class TelaParceiro {
 
         txtCep = new TextField();
         txtCep.setPromptText("CEP (somente números)");
+        txtCep.setMaxWidth(Double.MAX_VALUE);
 
         // Cidade + UF lado a lado
         HBox linhaCidadeUf = new HBox(10, txtCidade, txtUf);
@@ -137,25 +158,30 @@ public class TelaParceiro {
 
         txtTelefone = new TextField();
         txtTelefone.setPromptText("(49) 99999-9999");
+        txtTelefone.setMaxWidth(Double.MAX_VALUE);
 
         txtEmail = new TextField();
         txtEmail.setPromptText("email@exemplo.com");
+        txtEmail.setMaxWidth(Double.MAX_VALUE);
 
         // === Botões de ação ===
         Button btnSalvar = new Button("Salvar");
         btnSalvar.setPrefWidth(120);
+        btnSalvar.setMaxWidth(Double.MAX_VALUE);
         btnSalvar.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
                 + "-fx-font-weight: bold; -fx-cursor: hand;");
         btnSalvar.setOnAction(e -> salvar());
 
         Button btnExcluir = new Button("Excluir");
         btnExcluir.setPrefWidth(120);
+        btnExcluir.setMaxWidth(Double.MAX_VALUE);
         btnExcluir.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; "
                 + "-fx-font-weight: bold; -fx-cursor: hand;");
         btnExcluir.setOnAction(e -> excluir());
 
         Button btnLimpar = new Button("Limpar");
         btnLimpar.setPrefWidth(250);
+        btnLimpar.setMaxWidth(Double.MAX_VALUE);
         btnLimpar.setStyle("-fx-cursor: hand;");
         btnLimpar.setOnAction(e -> limparFormulario());
 
@@ -164,7 +190,8 @@ public class TelaParceiro {
         // === Monta o formulário ===
         VBox form = new VBox(8);
         form.setPadding(new Insets(15));
-        form.setPrefWidth(300);
+        form.setMinWidth(300);
+        form.setMaxWidth(430);
         form.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
 
         form.getChildren().addAll(
@@ -210,6 +237,7 @@ public class TelaParceiro {
         tabela = new TableView<>();
         listaParceiros = FXCollections.observableArrayList();
         tabela.setItems(listaParceiros);
+        tabela.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         configurarColunas();
 
@@ -233,7 +261,6 @@ public class TelaParceiro {
     /**
      * Configura as colunas da tabela conforme os campos do modelo Parceiro.
      */
-    @SuppressWarnings("unchecked")
     private void configurarColunas() {
         TableColumn<Parceiro, Integer> colId = new TableColumn<>("ID");
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -263,7 +290,15 @@ public class TelaParceiro {
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         colEmail.setPrefWidth(160);
 
-        tabela.getColumns().addAll(colId, colRazao, colCnpj, colCidade, colUf, colTel, colEmail);
+        java.util.List<TableColumn<Parceiro, ?>> colunas = new java.util.ArrayList<>();
+        colunas.add(colId);
+        colunas.add(colRazao);
+        colunas.add(colCnpj);
+        colunas.add(colCidade);
+        colunas.add(colUf);
+        colunas.add(colTel);
+        colunas.add(colEmail);
+        tabela.getColumns().addAll(colunas);
     }
 
     // ===================================================================

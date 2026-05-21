@@ -1,5 +1,11 @@
 package com.contratech.cadastrocontrato.view;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
 import com.contratech.cadastrocontrato.dao.ClausulaDAO;
 import com.contratech.cadastrocontrato.dao.ContratoDAO;
 import com.contratech.cadastrocontrato.dao.ParceiroDAO;
@@ -14,18 +20,26 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.List;
 
 /**
  * Tela de Gestão de Contratos com painel integrado de Cláusulas.
@@ -109,11 +123,18 @@ public class TelaContrato {
         // Empilha formulário + cláusulas no ScrollPane da esquerda
         VBox colunaEsquerda = new VBox(10, formContrato, painelClausulas);
         colunaEsquerda.setPrefWidth(340);
+        // Se o usuário for apenas visualizador, desabilita o painel esquerdo (visualização somente)
+        if (usuarioLogado.getTipoUsuario() == com.contratech.cadastrocontrato.model.Usuario.TipoUsuario.VISUALIZADOR) {
+            colunaEsquerda.setDisable(true);
+            colunaEsquerda.setStyle(colunaEsquerda.getStyle() + "-fx-opacity: 0.98;");
+        }
+        colunaEsquerda.setMaxWidth(430);
 
         ScrollPane scrollEsquerda = new ScrollPane(colunaEsquerda);
         scrollEsquerda.setFitToWidth(true);
         scrollEsquerda.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollEsquerda.setStyle("-fx-background: #ECEFF1; -fx-background-color: #ECEFF1;");
+        scrollEsquerda.setMaxWidth(450);
 
         // === TABELA DE CONTRATOS (direita) ===
         VBox painelTabela = criarPainelTabelaContratos();
@@ -121,6 +142,7 @@ public class TelaContrato {
         // === LAYOUT CENTRAL ===
         HBox centro = new HBox(15, scrollEsquerda, painelTabela);
         centro.setPadding(new Insets(15));
+        centro.setFillHeight(true);
         HBox.setHgrow(painelTabela, Priority.ALWAYS);
 
         // === LAYOUT PRINCIPAL ===
@@ -133,7 +155,7 @@ public class TelaContrato {
         stage.setTitle("Contratos - CadastroContrato");
         stage.setScene(scene);
         stage.setResizable(true);
-        stage.centerOnScreen();
+        stage.setMaximized(true);
 
         atualizarTabelaContratos();
         atualizarEstadoClausulas();
@@ -150,6 +172,7 @@ public class TelaContrato {
         // --- Nº Contrato ---
         txtNumeroContrato = new TextField();
         txtNumeroContrato.setPromptText("Ex: 2026/001");
+        txtNumeroContrato.setMaxWidth(Double.MAX_VALUE);
 
         // --- Parceiro ---
         cbParceiro = new ComboBox<>();
@@ -160,12 +183,14 @@ public class TelaContrato {
         // --- Objeto ---
         txtObjeto = new TextField();
         txtObjeto.setPromptText("Objeto do contrato");
+        txtObjeto.setMaxWidth(Double.MAX_VALUE);
 
         // --- Descrição ---
         txtDescricao = new TextArea();
         txtDescricao.setPromptText("Descrição detalhada...");
         txtDescricao.setPrefRowCount(3);
         txtDescricao.setWrapText(true);
+        txtDescricao.setMaxWidth(Double.MAX_VALUE);
 
         // --- Tipo ---
         cbTipo = new ComboBox<>(FXCollections.observableArrayList(
@@ -176,9 +201,11 @@ public class TelaContrato {
         // --- Valor e Multa ---
         txtValor = new TextField();
         txtValor.setPromptText("0.00");
+        txtValor.setMaxWidth(Double.MAX_VALUE);
 
         txtMulta = new TextField();
         txtMulta.setPromptText("0.00");
+        txtMulta.setMaxWidth(Double.MAX_VALUE);
 
         HBox hbValores = new HBox(10);
         VBox vbValor = new VBox(2, new Label("Valor (R$):"), txtValor);
@@ -196,9 +223,11 @@ public class TelaContrato {
         // --- Datas ---
         txtDataInicio = new TextField();
         txtDataInicio.setPromptText("dd/MM/yyyy");
+        txtDataInicio.setMaxWidth(Double.MAX_VALUE);
 
         txtDataFim = new TextField();
         txtDataFim.setPromptText("dd/MM/yyyy");
+        txtDataFim.setMaxWidth(Double.MAX_VALUE);
 
         HBox hbDatas = new HBox(10);
         VBox vbInicio = new VBox(2, new Label("Data Início:"), txtDataInicio);
@@ -218,16 +247,19 @@ public class TelaContrato {
         txtObservacoes.setPromptText("Observações opcionais...");
         txtObservacoes.setPrefRowCount(2);
         txtObservacoes.setWrapText(true);
+        txtObservacoes.setMaxWidth(Double.MAX_VALUE);
 
         // === Botões ===
         Button btnSalvar = new Button("Salvar");
         btnSalvar.setPrefWidth(130);
+        btnSalvar.setMaxWidth(Double.MAX_VALUE);
         btnSalvar.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
                 + "-fx-font-weight: bold; -fx-cursor: hand;");
         btnSalvar.setOnAction(e -> salvarContrato());
 
         Button btnExcluir = new Button("Excluir");
         btnExcluir.setPrefWidth(130);
+        btnExcluir.setMaxWidth(Double.MAX_VALUE);
         btnExcluir.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; "
                 + "-fx-font-weight: bold; -fx-cursor: hand;");
         btnExcluir.setOnAction(e -> excluirContrato());
@@ -236,12 +268,15 @@ public class TelaContrato {
 
         Button btnLimpar = new Button("Novo Contrato");
         btnLimpar.setPrefWidth(270);
+        btnLimpar.setMaxWidth(Double.MAX_VALUE);
         btnLimpar.setStyle("-fx-cursor: hand;");
         btnLimpar.setOnAction(e -> limparFormularioContrato());
 
         // === Monta ===
         VBox form = new VBox(8);
         form.setPadding(new Insets(15));
+        form.setMinWidth(340);
+        form.setMaxWidth(450);
         form.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
 
         form.getChildren().addAll(
@@ -316,6 +351,7 @@ public class TelaContrato {
         listaClausulas = FXCollections.observableArrayList();
         tabelaClausulas.setItems(listaClausulas);
         tabelaClausulas.setPrefHeight(180);
+        VBox.setVgrow(tabelaClausulas, Priority.ALWAYS);
         tabelaClausulas.setPlaceholder(new Label("Nenhuma cláusula cadastrada."));
 
         configurarColunasClausulas();
@@ -333,6 +369,7 @@ public class TelaContrato {
         painel.setPadding(new Insets(12));
         painel.setStyle("-fx-background-color: #F3E5F5; -fx-background-radius: 6; "
                 + "-fx-border-color: #CE93D8; -fx-border-radius: 6; -fx-border-width: 1;");
+        painel.setMaxWidth(Double.MAX_VALUE);
 
         painel.getChildren().addAll(
                 lblTitulo,
@@ -346,7 +383,6 @@ public class TelaContrato {
         return painel;
     }
 
-    @SuppressWarnings("unchecked")
     private void configurarColunasClausulas() {
         TableColumn<Clausula, Integer> colNum = new TableColumn<>("Nº");
         colNum.setCellValueFactory(new PropertyValueFactory<>("numero"));
@@ -369,7 +405,10 @@ public class TelaContrato {
             }
         });
 
-        tabelaClausulas.getColumns().addAll(colNum, colDesc);
+        java.util.List<TableColumn<Clausula, ?>> colunasClausulas = new java.util.ArrayList<>();
+        colunasClausulas.add(colNum);
+        colunasClausulas.add(colDesc);
+        tabelaClausulas.getColumns().addAll(colunasClausulas);
     }
 
     // ===================================================================
@@ -397,6 +436,7 @@ public class TelaContrato {
         tabelaContratos = new TableView<>();
         listaContratos = FXCollections.observableArrayList();
         tabelaContratos.setItems(listaContratos);
+        tabelaContratos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         configurarColunasContratos();
 
@@ -413,11 +453,11 @@ public class TelaContrato {
         VBox painel = new VBox(10, barraPesquisa, tabelaContratos);
         painel.setPadding(new Insets(15));
         painel.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
+        painel.setMaxWidth(Double.MAX_VALUE);
 
         return painel;
     }
 
-    @SuppressWarnings("unchecked")
     private void configurarColunasContratos() {
         TableColumn<Contrato, Integer> colId = new TableColumn<>("ID");
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -479,9 +519,16 @@ public class TelaContrato {
             }
         });
 
-        tabelaContratos.getColumns().addAll(
-                colId, colNumero, colParceiro, colObjeto, colTipo, colValor, colStatus, colVencimento
-        );
+        java.util.List<TableColumn<Contrato, ?>> colunasContratos = new java.util.ArrayList<>();
+        colunasContratos.add(colId);
+        colunasContratos.add(colNumero);
+        colunasContratos.add(colParceiro);
+        colunasContratos.add(colObjeto);
+        colunasContratos.add(colTipo);
+        colunasContratos.add(colValor);
+        colunasContratos.add(colStatus);
+        colunasContratos.add(colVencimento);
+        tabelaContratos.getColumns().addAll(colunasContratos);
     }
 
     // ===================================================================

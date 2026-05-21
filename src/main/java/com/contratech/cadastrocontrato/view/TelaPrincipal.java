@@ -1,22 +1,27 @@
 package com.contratech.cadastrocontrato.view;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.contratech.cadastrocontrato.dao.ContratoDAO;
 import com.contratech.cadastrocontrato.model.Contrato;
 import com.contratech.cadastrocontrato.model.Usuario;
 import com.contratech.cadastrocontrato.util.AlertaUtil;
-import java.time.LocalDate;
-import java.util.ArrayList;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
-import java.util.List;
 
 /**
  * Tela principal do sistema com menu de navegação.
@@ -72,8 +77,15 @@ public class TelaPrincipal {
 
         // Ações dos botões
         btnUsuarios.setOnAction(e -> {
-            TelaUsuario telaUsuario = new TelaUsuario(stage, usuarioLogado);
-            telaUsuario.exibir();
+            // Checa permissão no momento do clique e registra tentativas negadas
+            if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.ADMIN) {
+                TelaUsuario telaUsuario = new TelaUsuario(stage, usuarioLogado);
+                telaUsuario.exibir();
+            } else {
+                com.contratech.cadastrocontrato.util.AuditUtil.logDeniedAccess(usuarioLogado,
+                        "Abrir TelaUsuarios", "Permissão insuficiente");
+                AlertaUtil.erro("Acesso negado", "Acesso restrito: somente ADMIN pode acessar Usuários.");
+            }
         });
 
         btnParceiros.setOnAction(e -> {
@@ -86,16 +98,21 @@ public class TelaPrincipal {
             telaContrato.exibir();
         });
 
-        // Controle de acesso: VISUALIZADOR não acessa Usuários
-        if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.VISUALIZADOR) {
-            btnUsuarios.setDisable(true);
-            btnUsuarios.setStyle(btnUsuarios.getStyle() + "-fx-opacity: 0.5;");
+        // Mantemos indicação visual para quem não tem acesso
+        if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.VISUALIZADOR
+                || usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.RESPONSAVEL) {
+            btnUsuarios.setStyle(btnUsuarios.getStyle() + "-fx-opacity: 0.6;");
+            btnUsuarios.setTooltip(new javafx.scene.control.Tooltip("Somente ADMIN pode acessar"));
         }
 
         // === Painel central com os botões ===
         HBox painelMenu = new HBox(20, btnUsuarios, btnParceiros, btnContratos);
         painelMenu.setAlignment(Pos.CENTER);
         painelMenu.setPadding(new Insets(30));
+        painelMenu.setFillHeight(true);
+        painelMenu.setPrefWidth(Double.MAX_VALUE);
+        painelMenu.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(painelMenu, Priority.ALWAYS);
 
         // === Rodapé ===
         Label lblRodape = new Label("CadastroContrato v1.0 | Grupo Tríade");
@@ -115,7 +132,7 @@ public class TelaPrincipal {
         stage.setTitle("CadastroContrato - Menu Principal");
         stage.setScene(scene);
         stage.setResizable(true);
-        stage.centerOnScreen();
+        stage.setMaximized(true);
 
         // Verifica contratos vencidos ao abrir a tela
         verificarContratosVencidos();
@@ -127,10 +144,12 @@ public class TelaPrincipal {
     private Button criarBotaoMenu(String texto, String cor, String descricao) {
         Button btn = new Button(texto);
         btn.setPrefWidth(180);
+        btn.setMaxWidth(Double.MAX_VALUE);
         btn.setPrefHeight(100);
         btn.setFont(Font.font("Arial", FontWeight.BOLD, 16));
         btn.setStyle("-fx-background-color: " + cor + "; -fx-text-fill: white; "
                    + "-fx-background-radius: 8; -fx-cursor: hand;");
+        HBox.setHgrow(btn, Priority.ALWAYS);
 
         // Tooltip com descrição ao passar o mouse
         btn.setTooltip(new Tooltip(descricao));

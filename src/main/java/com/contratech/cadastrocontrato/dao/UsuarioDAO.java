@@ -42,7 +42,6 @@ public class UsuarioDAO {
 
         } catch (SQLException e) {
             System.err.println("[UsuarioDAO] Erro ao autenticar: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return null; // Credenciais inválidas
@@ -73,7 +72,6 @@ public class UsuarioDAO {
 
         } catch (SQLException e) {
             System.err.println("[UsuarioDAO] Erro ao inserir: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -119,7 +117,6 @@ public class UsuarioDAO {
 
         } catch (SQLException e) {
             System.err.println("[UsuarioDAO] Erro ao alterar: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -144,7 +141,6 @@ public class UsuarioDAO {
 
         } catch (SQLException e) {
             System.err.println("[UsuarioDAO] Erro ao excluir: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -169,7 +165,6 @@ public class UsuarioDAO {
 
         } catch (SQLException e) {
             System.err.println("[UsuarioDAO] Erro ao listar: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return lista;
@@ -198,7 +193,6 @@ public class UsuarioDAO {
 
         } catch (SQLException e) {
             System.err.println("[UsuarioDAO] Erro ao pesquisar: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return lista;
@@ -228,7 +222,6 @@ public class UsuarioDAO {
 
         } catch (SQLException e) {
             System.err.println("[UsuarioDAO] Erro ao verificar email: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return false;

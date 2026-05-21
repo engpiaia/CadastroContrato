@@ -11,9 +11,20 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -51,6 +62,15 @@ public class TelaUsuario {
     }
 
     public void exibir() {
+        // Segurança: somente ADMIN pode acessar a tela de usuários
+        if (usuarioLogado.getTipoUsuario() != Usuario.TipoUsuario.ADMIN) {
+            com.contratech.cadastrocontrato.util.AuditUtil.logDeniedAccess(usuarioLogado,
+                    "Abrir TelaUsuario (via URL/rotina)", "Permissão insuficiente");
+            AlertaUtil.erro("Acesso negado", "Acesso restrito: somente ADMIN pode acessar Usuários.");
+            TelaPrincipal tela = new TelaPrincipal(stage, usuarioLogado);
+            tela.exibir();
+            return;
+        }
         // === BARRA SUPERIOR ===
         Label lblTitulo = new Label("Gestão de Usuários");
         lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
@@ -80,6 +100,7 @@ public class TelaUsuario {
         // === LAYOUT CENTRAL ===
         HBox centro = new HBox(15, formulario, painelTabela);
         centro.setPadding(new Insets(15));
+        centro.setFillHeight(true);
         HBox.setHgrow(painelTabela, Priority.ALWAYS);
 
         // === LAYOUT PRINCIPAL ===
@@ -92,7 +113,7 @@ public class TelaUsuario {
         stage.setTitle("Usuários - CadastroContrato");
         stage.setScene(scene);
         stage.setResizable(true);
-        stage.centerOnScreen();
+        stage.setMaximized(true);
 
         // Carrega dados iniciais
         atualizarTabela();
@@ -119,23 +140,26 @@ public class TelaUsuario {
 
         cmbTipo = new ComboBox<>(FXCollections.observableArrayList(TipoUsuario.values()));
         cmbTipo.setPromptText("Tipo de Usuário");
-        cmbTipo.setPrefWidth(250);
+        cmbTipo.setMaxWidth(Double.MAX_VALUE);
 
         // === Botões de ação ===
         Button btnSalvar = new Button("Salvar");
         btnSalvar.setPrefWidth(120);
+        btnSalvar.setMaxWidth(Double.MAX_VALUE);
         btnSalvar.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
                          + "-fx-font-weight: bold; -fx-cursor: hand;");
         btnSalvar.setOnAction(e -> salvar());
 
         Button btnExcluir = new Button("Excluir");
         btnExcluir.setPrefWidth(120);
+        btnExcluir.setMaxWidth(Double.MAX_VALUE);
         btnExcluir.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; "
                           + "-fx-font-weight: bold; -fx-cursor: hand;");
         btnExcluir.setOnAction(e -> excluir());
 
         Button btnLimpar = new Button("Limpar");
         btnLimpar.setPrefWidth(250);
+        btnLimpar.setMaxWidth(Double.MAX_VALUE);
         btnLimpar.setStyle("-fx-cursor: hand;");
         btnLimpar.setOnAction(e -> limparFormulario());
 
@@ -144,7 +168,8 @@ public class TelaUsuario {
         // === Monta o formulário ===
         VBox form = new VBox(10);
         form.setPadding(new Insets(15));
-        form.setPrefWidth(280);
+        form.setMinWidth(280);
+        form.setMaxWidth(420);
         form.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
 
         form.getChildren().addAll(
@@ -190,6 +215,7 @@ public class TelaUsuario {
         tabela = new TableView<>();
         listaUsuarios = FXCollections.observableArrayList();
         tabela.setItems(listaUsuarios);
+        tabela.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // Colunas
         TableColumn<Usuario, Integer> colId = new TableColumn<>("ID");
@@ -212,9 +238,13 @@ public class TelaUsuario {
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipoUsuario"));
         colTipo.setPrefWidth(100);
 
-        @SuppressWarnings("unchecked")
-        var colunas = tabela.getColumns();
-        colunas.addAll(colId, colNome, colSobrenome, colEmail, colTipo);
+        java.util.List<TableColumn<Usuario, ?>> colunas = new java.util.ArrayList<>();
+        colunas.add(colId);
+        colunas.add(colNome);
+        colunas.add(colSobrenome);
+        colunas.add(colEmail);
+        colunas.add(colTipo);
+        tabela.getColumns().addAll(colunas);
 
         // Ao clicar numa linha, preenche o formulário para edição
         tabela.getSelectionModel().selectedItemProperty().addListener(

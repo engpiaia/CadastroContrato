@@ -8,8 +8,13 @@ import com.contratech.cadastrocontrato.util.SenhaUtil;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -46,16 +51,16 @@ public class TelaLogin {
         Label lblEmail = new Label("E-mail:");
         txtEmail = new TextField();
         txtEmail.setPromptText("seu@email.com");
-        txtEmail.setPrefWidth(280);
+        txtEmail.setMaxWidth(Double.MAX_VALUE);
 
         Label lblSenha = new Label("Senha:");
         txtSenha = new PasswordField();
         txtSenha.setPromptText("Digite sua senha");
-        txtSenha.setPrefWidth(280);
+        txtSenha.setMaxWidth(Double.MAX_VALUE);
 
         // === Botão Entrar ===
         btnEntrar = new Button("Entrar");
-        btnEntrar.setPrefWidth(280);
+        btnEntrar.setMaxWidth(Double.MAX_VALUE);
         btnEntrar.setPrefHeight(35);
         btnEntrar.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; "
                          + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
@@ -69,8 +74,10 @@ public class TelaLogin {
         // === Layout ===
         VBox formulario = new VBox(10);
         formulario.setAlignment(Pos.CENTER);
+        formulario.setFillWidth(true);
         formulario.setPadding(new Insets(40, 50, 40, 50));
-        formulario.setMaxWidth(380);
+        formulario.setMinWidth(320);
+        formulario.setMaxWidth(420);
         formulario.setStyle("-fx-background-color: white; "
                           + "-fx-background-radius: 8; "
                           + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 2);");
@@ -93,8 +100,8 @@ public class TelaLogin {
         Scene scene = new Scene(root, 500, 420);
         stage.setTitle("Login - CadastroContrato");
         stage.setScene(scene);
-        stage.setResizable(false);
-        stage.centerOnScreen();
+        stage.setResizable(true);
+        stage.setMaximized(true);
         stage.show();
 
         // Foco no campo email ao abrir
@@ -142,7 +149,6 @@ public class TelaLogin {
 
         } catch (Exception e) {
             AlertaUtil.erro("Erro", "Erro ao conectar com o banco de dados:\n" + e.getMessage());
-            e.printStackTrace();
         } finally {
             btnEntrar.setDisable(false);
         }
