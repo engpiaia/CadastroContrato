@@ -9,6 +9,8 @@ import com.contratech.cadastrocontrato.model.Contrato;
 import com.contratech.cadastrocontrato.model.Usuario;
 import com.contratech.cadastrocontrato.util.AlertaUtil;
 
+import javafx.application.Platform;
+import javafx.stage.Screen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -132,8 +134,18 @@ public class TelaPrincipal {
         stage.setTitle("CadastroContrato - Menu Principal");
         stage.setScene(scene);
         stage.setResizable(true);
-        stage.setMaximized(true);
-
+        if (!stage.isShowing()) {
+            stage.show();
+        }
+        Platform.runLater(() -> {
+            stage.setMaximized(true);
+            javafx.geometry.Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            stage.setX(bounds.getMinX());
+            stage.setY(bounds.getMinY());
+            stage.setWidth(bounds.getWidth());
+            stage.setHeight(bounds.getHeight());
+            stage.toFront();
+        });
         // Verifica contratos vencidos ao abrir a tela
         verificarContratosVencidos();
     }
