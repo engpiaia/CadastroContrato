@@ -24,6 +24,11 @@ public class TelaPrincipal {
 
     private final Stage stage;
     private final Usuario usuarioLogado;
+    private static boolean alertaJaMostrado = false;
+
+    public static void resetarAlerta() {
+    alertaJaMostrado = false;
+    }
 
     public TelaPrincipal(Stage stage, Usuario usuarioLogado) {
         this.stage = stage;
@@ -56,7 +61,9 @@ public class TelaPrincipal {
 
         btnLogout.setOnAction(e -> {
             if (AlertaUtil.confirmar("Logout", "Deseja sair?")) {
+                TelaPrincipal.resetarAlerta();
                 new TelaLogin(stage).exibir();
+
             }
         });
 
@@ -124,7 +131,12 @@ public class TelaPrincipal {
             stage.setHeight(b.getHeight());
         });
 
-        verificarContratosVencidos();
+        
+        if (!alertaJaMostrado) {
+            verificarContratosVencidos();
+            alertaJaMostrado = true;
+        }
+
     }
 
     // === BOTÕES ESTILO CARD ===
