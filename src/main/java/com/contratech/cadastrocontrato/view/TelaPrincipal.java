@@ -14,25 +14,12 @@ import javafx.stage.Screen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-/**
- * Tela principal do sistema com menu de navegação.
- * 
- * Funcionalidades:
- * - Menu com acesso a Usuários, Parceiros e Contratos
- * - Alerta de contratos vencidos ao abrir
- * - Controle de acesso baseado no tipo de usuário
- */
 public class TelaPrincipal {
 
     private final Stage stage;
@@ -44,194 +31,198 @@ public class TelaPrincipal {
     }
 
     public void exibir() {
-        // === Barra superior ===
-        Label lblBemVindo = new Label("Bem-vindo, " + usuarioLogado.getNome() + "!");
-        lblBemVindo.setFont(Font.font("Arial", FontWeight.BOLD, 16));
 
-        Label lblPerfil = new Label("Perfil: " + usuarioLogado.getTipoUsuario());
-        lblPerfil.setStyle("-fx-text-fill: #666; -fx-font-size: 12px;");
+        // === HEADER ===
+        Label lblBemVindo = new Label("Bem-vindo, " + usuarioLogado.getNome());
+        lblBemVindo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 22));
+        lblBemVindo.setStyle("-fx-text-fill: white;");
+
+        Label lblPerfil = new Label(usuarioLogado.getTipoUsuario().toString());
+        lblPerfil.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.2);" +
+                "-fx-padding: 5 10;" +
+                "-fx-background-radius: 20;" +
+                "-fx-text-fill: white;"
+        );
 
         Button btnLogout = new Button("Sair");
-        btnLogout.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-cursor: hand;");
+        btnLogout.setStyle(
+                "-fx-background-color: #e74c3c;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 6 16;" +
+                "-fx-font-weight: bold;"
+        );
+
         btnLogout.setOnAction(e -> {
-            if (AlertaUtil.confirmar("Logout", "Deseja realmente sair do sistema?")) {
-                TelaLogin telaLogin = new TelaLogin(stage);
-                telaLogin.exibir();
+            if (AlertaUtil.confirmar("Logout", "Deseja sair?")) {
+                new TelaLogin(stage).exibir();
             }
         });
 
-        Region espacador = new Region();
-        HBox.setHgrow(espacador, Priority.ALWAYS);
+        Region espaco = new Region();
+        HBox.setHgrow(espaco, Priority.ALWAYS);
 
-        HBox barraSuperior = new HBox(15, lblBemVindo, lblPerfil, espacador, btnLogout);
-        barraSuperior.setAlignment(Pos.CENTER_LEFT);
-        barraSuperior.setPadding(new Insets(15, 20, 15, 20));
-        barraSuperior.setStyle("-fx-background-color: white; "
-                             + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);");
+        HBox header = new HBox(15, lblBemVindo, lblPerfil, espaco, btnLogout);
+        header.setPadding(new Insets(20));
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setStyle(
+                "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10,0,0,3);"
+        );
 
-        // === Botões do menu ===
-        Button btnUsuarios = criarBotaoMenu("Usuários", "#2196F3",
-                "Cadastro, edição e exclusão de usuários do sistema");
-        Button btnParceiros = criarBotaoMenu("Parceiros", "#4CAF50",
-                "Cadastro de clientes e fornecedores");
-        Button btnContratos = criarBotaoMenu("Contratos", "#FF9800",
-                "Gestão de contratos e cláusulas");
+        // === BOTÕES ===
+        Button btnUsuarios = criarCard("👤 Usuários", "#3498db");
+        Button btnParceiros = criarCard("🤝 Parceiros", "#2ecc71");
+        Button btnContratos = criarCard("📄 Contratos", "#f39c12");
 
-        // Ações dos botões
         btnUsuarios.setOnAction(e -> {
-            // Checa permissão no momento do clique e registra tentativas negadas
             if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.ADMIN) {
-                TelaUsuario telaUsuario = new TelaUsuario(stage, usuarioLogado);
-                telaUsuario.exibir();
+                new TelaUsuario(stage, usuarioLogado).exibir();
             } else {
-                com.contratech.cadastrocontrato.util.AuditUtil.logDeniedAccess(usuarioLogado,
-                        "Abrir TelaUsuarios", "Permissão insuficiente");
-                AlertaUtil.erro("Acesso negado", "Acesso restrito: somente ADMIN pode acessar Usuários.");
+                AlertaUtil.erro("Acesso negado", "Somente ADMIN");
             }
         });
 
-        btnParceiros.setOnAction(e -> {
-            TelaParceiro telaParceiro = new TelaParceiro(stage, usuarioLogado);
-            telaParceiro.exibir();
-        });
+        btnParceiros.setOnAction(e -> new TelaParceiro(stage, usuarioLogado).exibir());
+        btnContratos.setOnAction(e -> new TelaContrato(stage, usuarioLogado).exibir());
 
-        btnContratos.setOnAction(e -> {
-            TelaContrato telaContrato = new TelaContrato(stage, usuarioLogado);
-            telaContrato.exibir();
-        });
-
-        // Mantemos indicação visual para quem não tem acesso
-        if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.VISUALIZADOR
-                || usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.RESPONSAVEL) {
-            btnUsuarios.setStyle(btnUsuarios.getStyle() + "-fx-opacity: 0.6;");
-            btnUsuarios.setTooltip(new javafx.scene.control.Tooltip("Somente ADMIN pode acessar"));
+        if (usuarioLogado.getTipoUsuario() != Usuario.TipoUsuario.ADMIN) {
+            btnUsuarios.setOpacity(0.5);
+            btnUsuarios.setTooltip(new Tooltip("Somente ADMIN"));
         }
 
-        // === Painel central com os botões ===
-        HBox painelMenu = new HBox(20, btnUsuarios, btnParceiros, btnContratos);
-        painelMenu.setAlignment(Pos.CENTER);
-        painelMenu.setPadding(new Insets(30));
-        painelMenu.setFillHeight(true);
-        painelMenu.setPrefWidth(Double.MAX_VALUE);
-        painelMenu.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(painelMenu, Priority.ALWAYS);
+        HBox menu = new HBox(30, btnUsuarios, btnParceiros, btnContratos);
+        menu.setAlignment(Pos.CENTER);
+        menu.setPadding(new Insets(50));
 
-        // === Rodapé ===
-        Label lblRodape = new Label("CadastroContrato v1.0 | Grupo Tríade");
-        lblRodape.setStyle("-fx-text-fill: #999; -fx-font-size: 11px;");
-        HBox rodape = new HBox(lblRodape);
-        rodape.setAlignment(Pos.CENTER);
-        rodape.setPadding(new Insets(10));
+        // === FOOTER ===
+        Label rodapeTxt = new Label("Sistema CadastroContrato • v1.0");
+        rodapeTxt.setStyle("-fx-text-fill: #95a5a6;");
 
-        // === Layout principal ===
+        HBox footer = new HBox(rodapeTxt);
+        footer.setAlignment(Pos.CENTER);
+        footer.setPadding(new Insets(15));
+
+        // === ROOT ===
         BorderPane root = new BorderPane();
-        root.setTop(barraSuperior);
-        root.setCenter(painelMenu);
-        root.setBottom(rodape);
-        root.setStyle("-fx-background-color: #ECEFF1;");
+        root.setTop(header);
+        root.setCenter(menu);
+        root.setBottom(footer);
+        root.setStyle("-fx-background-color: #eef2f7;");
 
-        Scene scene = new Scene(root, 750, 450);
-        stage.setTitle("CadastroContrato - Menu Principal");
+        Scene scene = new Scene(root, 900, 500);
         stage.setScene(scene);
-        stage.setResizable(true);
-        if (!stage.isShowing()) {
-            stage.show();
-        }
+        stage.setTitle("CadastroContrato");
+
+        stage.show();
+
         Platform.runLater(() -> {
             stage.setMaximized(true);
-            javafx.geometry.Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-            stage.setX(bounds.getMinX());
-            stage.setY(bounds.getMinY());
-            stage.setWidth(bounds.getWidth());
-            stage.setHeight(bounds.getHeight());
-            stage.toFront();
+            var b = Screen.getPrimary().getVisualBounds();
+            stage.setWidth(b.getWidth());
+            stage.setHeight(b.getHeight());
         });
-        // Verifica contratos vencidos ao abrir a tela
+
         verificarContratosVencidos();
     }
 
-    /**
-     * Cria um botão estilizado para o menu principal.
-     */
-    private Button criarBotaoMenu(String texto, String cor, String descricao) {
-        Button btn = new Button(texto);
-        btn.setPrefWidth(180);
-        btn.setMaxWidth(Double.MAX_VALUE);
-        btn.setPrefHeight(100);
-        btn.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        btn.setStyle("-fx-background-color: " + cor + "; -fx-text-fill: white; "
-                   + "-fx-background-radius: 8; -fx-cursor: hand;");
-        HBox.setHgrow(btn, Priority.ALWAYS);
+    // === BOTÕES ESTILO CARD ===
+    private Button criarCard(String texto, String cor) {
 
-        // Tooltip com descrição ao passar o mouse
-        btn.setTooltip(new Tooltip(descricao));
+        Button btn = new Button(texto);
+
+        btn.setPrefSize(220, 130);
+        btn.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+
+        String estiloBase =
+                "-fx-background-color: white;" +
+                "-fx-text-fill: #2c3e50;" +
+                "-fx-background-radius: 15;" +
+                "-fx-border-radius: 15;" +
+                "-fx-border-color: #ddd;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8,0,0,2);";
+
+        String hover =
+                "-fx-background-color: " + cor + ";" +
+                "-fx-text-fill: white;" +
+                "-fx-scale-x: 1.05;" +
+                "-fx-scale-y: 1.05;" +
+                "-fx-background-radius: 15;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15,0,0,4);";
+
+        btn.setStyle(estiloBase);
+
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e -> btn.setStyle(estiloBase));
 
         return btn;
     }
 
-    /**
-     * Consulta contratos vencidos e exibe alerta se houver.
-     * Roda toda vez que o usuário abre ou volta pra tela principal.
-     */
+    // ✅ ALERTA COMPLETO (SEU ORIGINAL MELHORADO)
     private void verificarContratosVencidos() {
-    ContratoDAO contratoDAO = new ContratoDAO();
-    List<Contrato> contratos = contratoDAO.listarVencidos();
 
-    if (contratos.isEmpty()) {
-        return;
-    }
+        ContratoDAO contratoDAO = new ContratoDAO();
+        List<Contrato> contratos = contratoDAO.listarVencidos();
 
-    LocalDate hoje = LocalDate.now();
+        if (contratos.isEmpty()) return;
 
-    // Separa vencidos dos que estão próximos do vencimento
-    List<Contrato> vencidos = new ArrayList<>();
-    List<Contrato> aVencer = new ArrayList<>();
+        LocalDate hoje = LocalDate.now();
 
-    for (Contrato c : contratos) {
-        if (c.getDataFim() != null && c.getDataFim().isBefore(hoje)) {
-            vencidos.add(c);
-        } else {
-            aVencer.add(c);
+        List<Contrato> vencidos = new ArrayList<>();
+        List<Contrato> aVencer = new ArrayList<>();
+
+        for (Contrato c : contratos) {
+            if (c.getDataFim() != null && c.getDataFim().isBefore(hoje)) {
+                vencidos.add(c);
+            } else {
+                aVencer.add(c);
+            }
         }
-    }
 
-    // Monta a mensagem
-    StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-    if (!vencidos.isEmpty()) {
-        sb.append("⚠ ").append(vencidos.size()).append(" contrato(s) VENCIDO(S):\n\n");
-        for (Contrato c : vencidos) {
-            long dias = java.time.temporal.ChronoUnit.DAYS.between(c.getDataFim(), hoje);
-            sb.append("• ").append(c.getObjeto())
-              .append(" (").append(c.getParceiroNome()).append(")")
-              .append(" — vencido há ").append(dias).append(" dia(s)\n");
-        }
-    }
-
-    if (!aVencer.isEmpty()) {
         if (!vencidos.isEmpty()) {
-            sb.append("\n");
+            sb.append("⚠ CONTRATOS VENCIDOS (").append(vencidos.size()).append(")\n\n");
+
+            for (Contrato c : vencidos) {
+                long dias = java.time.temporal.ChronoUnit.DAYS
+                        .between(c.getDataFim(), hoje);
+
+                sb.append("• ").append(c.getObjeto())
+                  .append("\n   ").append(c.getParceiroNome())
+                  .append(" — vencido há ").append(dias).append(" dia(s)\n\n");
+            }
         }
-        sb.append("🔔 ").append(aVencer.size()).append(" contrato(s) PRÓXIMO(S) DO VENCIMENTO:\n\n");
-        for (Contrato c : aVencer) {
-            long dias = java.time.temporal.ChronoUnit.DAYS.between(hoje, c.getDataFim());
-            sb.append("• ").append(c.getObjeto())
-              .append(" (").append(c.getParceiroNome()).append(")")
-              .append(" — vence em ").append(dias).append(" dia(s)\n");
+
+        if (!aVencer.isEmpty()) {
+
+            if (!vencidos.isEmpty()) {
+                sb.append("\n");
+            }
+
+            sb.append("🔔 PRÓXIMOS DO VENCIMENTO (").append(aVencer.size()).append(")\n\n");
+
+            for (Contrato c : aVencer) {
+                long dias = java.time.temporal.ChronoUnit.DAYS
+                        .between(hoje, c.getDataFim());
+
+                sb.append("• ").append(c.getObjeto())
+                  .append("\n   ").append(c.getParceiroNome())
+                  .append(" — vence em ").append(dias).append(" dia(s)\n\n");
+            }
         }
-    }
 
-    // Define o título do alerta conforme a situação
-    String titulo;
-    if (!vencidos.isEmpty() && !aVencer.isEmpty()) {
-        titulo = "Contratos Vencidos e a Vencer";
-    } else if (!vencidos.isEmpty()) {
-        titulo = "Contratos Vencidos";
-    } else {
-        titulo = "Contratos Próximos do Vencimento";
-    }
+        String titulo;
+        if (!vencidos.isEmpty() && !aVencer.isEmpty()) {
+            titulo = "⚠ Atenção: Contratos vencidos e a vencer";
+        } else if (!vencidos.isEmpty()) {
+            titulo = "⚠ Contratos vencidos";
+        } else {
+            titulo = "🔔 Contratos próximos do vencimento";
+        }
 
-    AlertaUtil.aviso(titulo, sb.toString());
+        AlertaUtil.aviso(titulo, sb.toString());
     }
-
 }

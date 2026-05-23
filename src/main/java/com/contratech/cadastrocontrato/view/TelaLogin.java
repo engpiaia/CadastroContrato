@@ -8,28 +8,16 @@ import com.contratech.cadastrocontrato.util.SenhaUtil;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-/**
- * Tela de Login do sistema.
- * 
- * Responsável por autenticar o usuário e direcionar para a tela principal.
- * O usuário autenticado é armazenado e passado adiante para controle de permissões.
- */
 public class TelaLogin {
 
     private final Stage stage;
 
-    // Componentes do formulário
     private TextField txtEmail;
     private PasswordField txtSenha;
     private Button btnEntrar;
@@ -39,119 +27,138 @@ public class TelaLogin {
     }
 
     public void exibir() {
-        // === Título ===
+
+        // === TÍTULO ===
         Label lblTitulo = new Label("CadastroContrato");
-        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 26));
+        lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
 
         Label lblSubtitulo = new Label("Sistema de Gestão de Contratos");
-        lblSubtitulo.setFont(Font.font("Arial", 13));
-        lblSubtitulo.setStyle("-fx-text-fill: #666;");
+        lblSubtitulo.setStyle("-fx-text-fill: #7f8c8d;");
 
-        // === Campos do formulário ===
-        Label lblEmail = new Label("E-mail:");
+        // === CAMPOS ===
         txtEmail = new TextField();
-        txtEmail.setPromptText("seu@email.com");
-        txtEmail.setMaxWidth(Double.MAX_VALUE);
-
-        Label lblSenha = new Label("Senha:");
-        txtSenha = new PasswordField();
-        txtSenha.setPromptText("Digite sua senha");
-        txtSenha.setMaxWidth(Double.MAX_VALUE);
-
-        // === Botão Entrar ===
-        btnEntrar = new Button("Entrar");
-        btnEntrar.setMaxWidth(Double.MAX_VALUE);
-        btnEntrar.setPrefHeight(35);
-        btnEntrar.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; "
-                         + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
-
-        // Ação do botão
-        btnEntrar.setOnAction(e -> realizarLogin());
-
-        // Enter no campo senha também faz login
-        txtSenha.setOnAction(e -> realizarLogin());
-
-        // === Layout ===
-        VBox formulario = new VBox(10);
-        formulario.setAlignment(Pos.CENTER);
-        formulario.setFillWidth(true);
-        formulario.setPadding(new Insets(40, 50, 40, 50));
-        formulario.setMinWidth(320);
-        formulario.setMaxWidth(420);
-        formulario.setStyle("-fx-background-color: white; "
-                          + "-fx-background-radius: 8; "
-                          + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 2);");
-
-        formulario.getChildren().addAll(
-            lblTitulo,
-            lblSubtitulo,
-            new Separator(),
-            lblEmail, txtEmail,
-            lblSenha, txtSenha,
-            btnEntrar
+        txtEmail.setPromptText("E-mail");
+        txtEmail.setPrefHeight(40);
+        txtEmail.setStyle(
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-border-color: #ddd;"
         );
 
-        // Fundo cinza atrás do card
-        StackPane root = new StackPane(formulario);
-        root.setStyle("-fx-background-color: #ECEFF1;");
-        root.setPadding(new Insets(50));
+        txtSenha = new PasswordField();
+        txtSenha.setPromptText("Senha");
+        txtSenha.setPrefHeight(40);
+        txtSenha.setStyle(
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-border-color: #ddd;"
+        );
 
-        // === Cena e Stage ===
+        // === BOTÃO ===
+        btnEntrar = new Button("Entrar");
+        btnEntrar.setPrefHeight(45);
+        btnEntrar.setMaxWidth(Double.MAX_VALUE);
+
+        String estiloBotao =
+                "-fx-background-color: linear-gradient(to right, #4ca1af, #2c3e50);" +
+                "-fx-text-fill: white;" +
+                "-fx-background-radius: 10;" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 14;" +
+                "-fx-cursor: hand;";
+
+        String hoverBotao =
+                "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);" +
+                "-fx-text-fill: white;" +
+                "-fx-background-radius: 10;" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 14;" +
+                "-fx-scale-x: 1.03;" +
+                "-fx-scale-y: 1.03;" +
+                "-fx-cursor: hand;";
+
+        btnEntrar.setStyle(estiloBotao);
+
+        btnEntrar.setOnMouseEntered(e -> btnEntrar.setStyle(hoverBotao));
+        btnEntrar.setOnMouseExited(e -> btnEntrar.setStyle(estiloBotao));
+
+        // === AÇÃO ===
+        btnEntrar.setOnAction(e -> realizarLogin());
+        txtSenha.setOnAction(e -> realizarLogin());
+
+        // === FORMULÁRIO (CARD) ===
+        VBox formulario = new VBox(15,
+                lblTitulo,
+                lblSubtitulo,
+                new Separator(),
+                txtEmail,
+                txtSenha,
+                btnEntrar
+        );
+
+        formulario.setAlignment(Pos.CENTER);
+        formulario.setPadding(new Insets(40));
+        formulario.setMaxWidth(420);
+
+        formulario.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-background-radius: 15;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20,0,0,5);"
+        );
+
+        // === FUNDO COM GRADIENTE ===
+        StackPane root = new StackPane(formulario);
+        root.setAlignment(Pos.CENTER);
+
+        root.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right, #eef2f7, #dfe6ee);"
+        );
+
+        root.setPadding(new Insets(40));
+
+        // === SCENE ===
         Scene scene = new Scene(root, 500, 420);
+
         stage.setTitle("Login - CadastroContrato");
         stage.setScene(scene);
-        stage.setResizable(true);
         stage.setMaximized(true);
         stage.show();
 
-        // Foco no campo email ao abrir
         txtEmail.requestFocus();
     }
 
-    /**
-     * Executa a lógica de autenticação.
-     * 
-     * Fluxo:
-     * 1. Valida se os campos estão preenchidos
-     * 2. Gera o hash da senha digitada
-     * 3. Consulta o banco via DAO
-     * 4. Se válido, abre a tela principal passando o usuário logado
-     * 5. Se inválido, exibe mensagem de erro genérica (segurança)
-     */
+    // ✅ LÓGICA ORIGINAL MANTIDA
     private void realizarLogin() {
+
         String email = txtEmail.getText().trim();
         String senha = txtSenha.getText().trim();
 
-        // Validação básica
         if (email.isEmpty() || senha.isEmpty()) {
             AlertaUtil.aviso("Campos obrigatórios", "Preencha o e-mail e a senha.");
             return;
         }
 
-        // Desabilita botão durante a consulta (evita duplo clique)
         btnEntrar.setDisable(true);
 
         try {
             String senhaHash = SenhaUtil.hashSHA256(senha);
+
             UsuarioDAO dao = new UsuarioDAO();
             Usuario usuario = dao.autenticar(email, senhaHash);
 
             if (usuario != null) {
-                // Login bem-sucedido — abre a tela principal
-                TelaPrincipal telaPrincipal = new TelaPrincipal(stage, usuario);
-                telaPrincipal.exibir();
+                new TelaPrincipal(stage, usuario).exibir();
             } else {
-                // Mensagem genérica por segurança — não revela se o email existe
                 AlertaUtil.erro("Falha no login", "E-mail ou senha inválidos.");
                 txtSenha.clear();
                 txtSenha.requestFocus();
             }
 
         } catch (Exception e) {
-            AlertaUtil.erro("Erro", "Erro ao conectar com o banco de dados:\n" + e.getMessage());
+            AlertaUtil.erro("Erro", "Erro ao conectar com o banco:\n" + e.getMessage());
         } finally {
             btnEntrar.setDisable(false);
         }
     }
 }
-
