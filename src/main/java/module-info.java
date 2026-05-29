@@ -3,6 +3,10 @@ module com.contratech.cadastrocontrato {
     requires javafx.controls;
     requires javafx.fxml;
 
+    // conexão com API
+    requires java.net.http;
+    requires com.fasterxml.jackson.databind;
+
     // Driver JDBC do PostgreSQL
     requires java.sql;
 

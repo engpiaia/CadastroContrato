@@ -1,5 +1,9 @@
 package com.contratech.cadastrocontrato.view;
 
+import com.contratech.cadastrocontrato.service.CnpjService;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+
 import com.contratech.cadastrocontrato.dao.ParceiroDAO;
 import com.contratech.cadastrocontrato.model.Parceiro;
 import com.contratech.cadastrocontrato.model.Usuario;
@@ -37,7 +41,7 @@ public class TelaParceiro {
     private final Stage stage;
     private final Usuario usuarioLogado;
     private final ParceiroDAO dao = new ParceiroDAO();
-
+    private final CnpjService cnpjService = new CnpjService();
     // Componentes do formulário
     private TextField txtRazaoSocial;
     private TextField txtCnpjCpf;
@@ -129,6 +133,17 @@ public class TelaParceiro {
         txtCnpjCpf = new TextField();
         txtCnpjCpf.setPromptText("CNPJ ou CPF (somente números)");
         txtCnpjCpf.setMaxWidth(Double.MAX_VALUE);
+
+// Dispara consulta à API ao sair do campo com 14 dígitos (CNPJ)
+        txtCnpjCpf.focusedProperty().addListener((obs, estavaFocado, estaFocado) -> {
+            // Só age quando o campo PERDE o foco
+            if (!estaFocado && parceiroSelecionado == null) {
+                String digitosApenas = txtCnpjCpf.getText().replaceAll("[^0-9]", "");
+                if (digitosApenas.length() == 14) {
+                    consultarCnpj(digitosApenas);
+                }
+            }
+        });
 
         txtEndereco = new TextField();
         txtEndereco.setPromptText("Rua, número, complemento");
@@ -304,7 +319,6 @@ public class TelaParceiro {
     // ===================================================================
     // OPERAÇÕES CRUD
     // ===================================================================
-
     /**
      * Salva (insere ou atualiza) o parceiro.
      */
@@ -397,8 +411,8 @@ public class TelaParceiro {
 
         boolean confirma = AlertaUtil.confirmar("Confirmar Exclusão",
                 "Deseja realmente excluir o parceiro '"
-                        + parceiroSelecionado.getRazaoSocial()
-                        + "'?\n\nContratos vinculados NÃO serão excluídos.");
+                + parceiroSelecionado.getRazaoSocial()
+                + "'?\n\nContratos vinculados NÃO serão excluídos.");
 
         if (confirma) {
             boolean sucesso = dao.excluir(parceiroSelecionado.getId());
@@ -414,8 +428,8 @@ public class TelaParceiro {
     }
 
     /**
-     * Pesquisa parceiros por razão social ou CNPJ/CPF.
-     * Se o termo for numérico, pesquisa por CNPJ. Senão, por nome.
+     * Pesquisa parceiros por razão social ou CNPJ/CPF. Se o termo for numérico,
+     * pesquisa por CNPJ. Senão, por nome.
      */
     private void pesquisar() {
         String termo = txtPesquisa.getText().trim();
@@ -470,5 +484,70 @@ public class TelaParceiro {
         txtTelefone.clear();
         txtEmail.clear();
         tabela.getSelectionModel().clearSelection();
+    }
+
+    private void consultarCnpj(String cnpj) {
+        // Feedback visual imediato
+        txtRazaoSocial.setPromptText("Consultando CNPJ...");
+
+        Task<CnpjService.DadosCnpj> task = new Task<>() {
+            @Override
+            protected CnpjService.DadosCnpj call() {
+                return cnpjService.consultar(cnpj);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            txtRazaoSocial.setPromptText("Nome / Razão Social"); // restaura prompt
+            CnpjService.DadosCnpj dados = task.getValue();
+
+            if (dados != null && dados.valido()) {
+                Platform.runLater(() -> preencherComDadosCnpj(dados));
+            } else {
+                Platform.runLater(()
+                        -> AlertaUtil.aviso("CNPJ não encontrado",
+                                "Nenhum dado retornado para este CNPJ.\n"
+                                + "Verifique o número ou preencha manualmente.")
+                );
+            }
+        });
+
+        task.setOnFailed(e -> {
+            txtRazaoSocial.setPromptText("Nome / Razão Social");
+            Platform.runLater(()
+                    -> AlertaUtil.aviso("Erro na consulta",
+                            "Não foi possível consultar o CNPJ.\n"
+                            + "Verifique sua conexão e tente novamente.")
+            );
+        });
+
+        // Executa em thread daemon para não bloquear shutdown da app
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    /**
+     * Preenche os campos do formulário com os dados vindos da API. Usa
+     * preencherSeVazio() para preservar dados digitados manualmente.
+     */
+    private void preencherComDadosCnpj(CnpjService.DadosCnpj dados) {
+        preencherSeVazio(txtRazaoSocial, dados.razaoSocial);
+        preencherSeVazio(txtEndereco, dados.endereco);
+        preencherSeVazio(txtCidade, dados.cidade);
+        preencherSeVazio(txtUf, dados.uf);
+        preencherSeVazio(txtCep, dados.cep);
+        preencherSeVazio(txtTelefone, dados.telefone);
+        preencherSeVazio(txtEmail, dados.email);
+    }
+
+    /**
+     * Preenche o campo apenas se ele estiver vazio. Garante que dados digitados
+     * manualmente não sejam sobrescritos.
+     */
+    private void preencherSeVazio(TextField campo, String valor) {
+        if (campo != null && campo.getText().trim().isEmpty() && valor != null) {
+            campo.setText(valor);
+        }
     }
 }
