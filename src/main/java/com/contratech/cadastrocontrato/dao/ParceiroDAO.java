@@ -124,17 +124,18 @@ public class ParceiroDAO {
 
     public boolean cnpjJaExiste(String cnpj, int idIgnorar) {
         String sql = "SELECT COUNT(*) FROM parceiros WHERE cnpj_cpf = ? AND id != ?";
-        try (Connection conn = ConexaoDB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, cnpj);
             stmt.setInt(2, idIgnorar);
 
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[ParceiroDAO] Erro ao verificar CNPJ: " + e.getMessage());
         }
         return false;
     }
