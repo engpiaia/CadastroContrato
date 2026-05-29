@@ -5,14 +5,18 @@ import com.contratech.cadastrocontrato.model.Usuario;
 import com.contratech.cadastrocontrato.util.AlertaUtil;
 import com.contratech.cadastrocontrato.util.SenhaUtil;
 
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class TelaLogin {
 
@@ -29,7 +33,7 @@ public class TelaLogin {
     public void exibir() {
 
         // === TÍTULO ===
-        Label lblTitulo = new Label("CadastroContrato");
+        Label lblTitulo = new Label("Contratech");
         lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 26));
         lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
 
@@ -40,20 +44,10 @@ public class TelaLogin {
         txtEmail = new TextField();
         txtEmail.setPromptText("E-mail");
         txtEmail.setPrefHeight(40);
-        txtEmail.setStyle(
-                "-fx-background-radius: 8;" +
-                "-fx-border-radius: 8;" +
-                "-fx-border-color: #ddd;"
-        );
 
         txtSenha = new PasswordField();
         txtSenha.setPromptText("Senha");
         txtSenha.setPrefHeight(40);
-        txtSenha.setStyle(
-                "-fx-background-radius: 8;" +
-                "-fx-border-radius: 8;" +
-                "-fx-border-color: #ddd;"
-        );
 
         // === BOTÃO ===
         btnEntrar = new Button("Entrar");
@@ -64,30 +58,14 @@ public class TelaLogin {
                 "-fx-background-color: linear-gradient(to right, #4ca1af, #2c3e50);" +
                 "-fx-text-fill: white;" +
                 "-fx-background-radius: 10;" +
-                "-fx-font-weight: bold;" +
-                "-fx-font-size: 14;" +
-                "-fx-cursor: hand;";
-
-        String hoverBotao =
-                "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);" +
-                "-fx-text-fill: white;" +
-                "-fx-background-radius: 10;" +
-                "-fx-font-weight: bold;" +
-                "-fx-font-size: 14;" +
-                "-fx-scale-x: 1.03;" +
-                "-fx-scale-y: 1.03;" +
-                "-fx-cursor: hand;";
+                "-fx-font-weight: bold;";
 
         btnEntrar.setStyle(estiloBotao);
 
-        btnEntrar.setOnMouseEntered(e -> btnEntrar.setStyle(hoverBotao));
-        btnEntrar.setOnMouseExited(e -> btnEntrar.setStyle(estiloBotao));
-
-        // === AÇÃO ===
         btnEntrar.setOnAction(e -> realizarLogin());
         txtSenha.setOnAction(e -> realizarLogin());
 
-        // === FORMULÁRIO (CARD) ===
+        // === FORMULÁRIO ===
         VBox formulario = new VBox(15,
                 lblTitulo,
                 lblSubtitulo,
@@ -102,20 +80,81 @@ public class TelaLogin {
         formulario.setMaxWidth(420);
 
         formulario.setStyle(
-                "-fx-background-color: white;" +
+                "-fx-background-color: rgba(255,255,255,0.92);" +
                 "-fx-background-radius: 15;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20,0,0,5);"
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 25,0,0,10);"
         );
 
-        // === FUNDO COM GRADIENTE ===
-        StackPane root = new StackPane(formulario);
-        root.setAlignment(Pos.CENTER);
-
-        root.setStyle(
-                "-fx-background-color: linear-gradient(to bottom right, #eef2f7, #dfe6ee);"
-        );
-
+        // === ROOT ===
+        StackPane root = new StackPane();
         root.setPadding(new Insets(40));
+
+        // ===== FUNDO BASE =====
+        root.setStyle("-fx-background-color: #2c3e50;");
+
+        // ===== FORMAS (EFEITO MOVIMENTO) =====
+
+        Circle c1 = new Circle(350);
+        c1.setFill(new RadialGradient(
+                0, 0,
+                0.3, 0.3,
+                1,
+                true,
+                CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#4ca1af")),
+                new Stop(1, Color.TRANSPARENT)
+        ));
+        c1.setOpacity(0.6);
+
+        Circle c2 = new Circle(280);
+        c2.setFill(new RadialGradient(
+                0, 0,
+                0.7, 0.7,
+                1,
+                true,
+                CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#2c3e50")),
+                new Stop(1, Color.TRANSPARENT)
+        ));
+        c2.setOpacity(0.5);
+
+        Circle c3 = new Circle(220);
+        c3.setFill(new RadialGradient(
+                0, 0,
+                0.5, 0.5,
+                1,
+                true,
+                CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#4ca1af")),
+                new Stop(1, Color.TRANSPARENT)
+        ));
+        c3.setOpacity(0.4);
+
+        // Adiciona ordem correta (fundo primeiro)
+        root.getChildren().addAll(c1, c2, c3, formulario);
+
+        // ===== ANIMAÇÕES =====
+
+        TranslateTransition t1 = new TranslateTransition(Duration.seconds(12), c1);
+        t1.setFromX(-300);
+        t1.setToX(300);
+        t1.setAutoReverse(true);
+        t1.setCycleCount(TranslateTransition.INDEFINITE);
+        t1.play();
+
+        TranslateTransition t2 = new TranslateTransition(Duration.seconds(15), c2);
+        t2.setFromY(-200);
+        t2.setToY(200);
+        t2.setAutoReverse(true);
+        t2.setCycleCount(TranslateTransition.INDEFINITE);
+        t2.play();
+
+        TranslateTransition t3 = new TranslateTransition(Duration.seconds(18), c3);
+        t3.setFromX(200);
+        t3.setToX(-200);
+        t3.setAutoReverse(true);
+        t3.setCycleCount(TranslateTransition.INDEFINITE);
+        t3.play();
 
         // === SCENE ===
         Scene scene = new Scene(root, 500, 420);
@@ -128,7 +167,6 @@ public class TelaLogin {
         txtEmail.requestFocus();
     }
 
-    // ✅ LÓGICA ORIGINAL MANTIDA
     private void realizarLogin() {
 
         String email = txtEmail.getText().trim();
@@ -156,7 +194,7 @@ public class TelaLogin {
             }
 
         } catch (Exception e) {
-            AlertaUtil.erro("Erro", "Erro ao conectar com o banco:\n" + e.getMessage());
+            AlertaUtil.erro("Erro", "Erro ao conectar:\n" + e.getMessage());
         } finally {
             btnEntrar.setDisable(false);
         }

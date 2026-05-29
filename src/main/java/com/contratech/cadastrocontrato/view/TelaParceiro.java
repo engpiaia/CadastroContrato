@@ -62,58 +62,95 @@ public class TelaParceiro {
     }
 
     public void exibir() {
-        // === BARRA SUPERIOR ===
-        Label lblTitulo = new Label("Gestão de Parceiros");
-        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        Button btnVoltar = new Button("← Menu");
-        btnVoltar.setStyle("-fx-background-color: #607D8B; -fx-text-fill: white; -fx-cursor: hand;");
-        btnVoltar.setOnAction(e -> {
-            TelaPrincipal tela = new TelaPrincipal(stage, usuarioLogado);
-            tela.exibir();
-        });
+    // ===== HEADER PADRÃO =====
+    Label lblTitulo = new Label("Parceiros  |  " + usuarioLogado.getNome());
+    lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
+    lblTitulo.setStyle("-fx-text-fill: white;");
 
-        Region espacador = new Region();
-        HBox.setHgrow(espacador, Priority.ALWAYS);
+    Label lblPerfil = new Label(usuarioLogado.getTipoUsuario().toString());
+    lblPerfil.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.2);" +
+            "-fx-padding: 5 10;" +
+            "-fx-background-radius: 20;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold;"
+    );
 
-        HBox barraSuperior = new HBox(15, btnVoltar, lblTitulo, espacador);
-        barraSuperior.setAlignment(Pos.CENTER_LEFT);
-        barraSuperior.setPadding(new Insets(12, 20, 12, 20));
-        barraSuperior.setStyle("-fx-background-color: white; "
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);");
+    Button btnVoltar = new Button("🏠 Menu");
+    btnVoltar.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.2);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 20;" +
+            "-fx-padding: 6 14;" +
+            "-fx-font-weight: bold;"
+    );
+    btnVoltar.setOnAction(e -> new TelaPrincipal(stage, usuarioLogado).exibir());
 
-        // === FORMULÁRIO (lado esquerdo) ===
-        VBox formulario = criarFormulario();
-
-        // === TABELA (lado direito) ===
-        VBox painelTabela = criarPainelTabela();
-
-        // Se o usuário for apenas visualizador, desabilita o formulário (visualização somente)
-        if (usuarioLogado.getTipoUsuario() == com.contratech.cadastrocontrato.model.Usuario.TipoUsuario.VISUALIZADOR) {
-            formulario.setDisable(true);
-            formulario.setStyle(formulario.getStyle() + "-fx-opacity: 0.98;");
+    Button btnLogout = new Button("Sair");
+    btnLogout.setStyle(
+            "-fx-background-color: #e74c3c;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 20;" +
+            "-fx-padding: 6 16;" +
+            "-fx-font-weight: bold;"
+    );
+    btnLogout.setOnAction(e -> {
+        if (AlertaUtil.confirmar("Logout", "Deseja sair?")) {
+            new TelaLogin(stage).exibir();
         }
+    });
 
-        // === LAYOUT CENTRAL ===
-        HBox centro = new HBox(15, formulario, painelTabela);
-        centro.setPadding(new Insets(15));
-        centro.setFillHeight(true);
-        HBox.setHgrow(painelTabela, Priority.ALWAYS);
+    Region espaco = new Region();
+    HBox.setHgrow(espaco, Priority.ALWAYS);
 
-        // === LAYOUT PRINCIPAL ===
-        BorderPane root = new BorderPane();
-        root.setTop(barraSuperior);
-        root.setCenter(centro);
-        root.setStyle("-fx-background-color: #ECEFF1;");
+    HBox barraSuperior = new HBox(12,
+            lblTitulo,
+            lblPerfil,
+            espaco,
+            btnVoltar,
+            btnLogout
+    );
 
-        Scene scene = new Scene(root, 1050, 600);
-        stage.setTitle("Parceiros - CadastroContrato");
-        stage.setScene(scene);
-        stage.setResizable(true);
-        stage.setMaximized(true);
+    barraSuperior.setAlignment(Pos.CENTER_LEFT);
+    barraSuperior.setPadding(new Insets(18));
+    barraSuperior.setStyle(
+            "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10,0,0,3);"
+    );
 
-        atualizarTabela();
+    // ===== FORMULÁRIO =====
+    VBox formulario = criarFormulario();
+
+    // ===== TABELA =====
+    VBox painelTabela = criarPainelTabela();
+
+    // Bloqueia edição se visualizador
+    if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.VISUALIZADOR) {
+        formulario.setDisable(true);
+        formulario.setStyle(formulario.getStyle() + "-fx-opacity: 0.98;");
     }
+
+    HBox centro = new HBox(15, formulario, painelTabela);
+    centro.setPadding(new Insets(20));
+    HBox.setHgrow(painelTabela, Priority.ALWAYS);
+
+    // ===== ROOT PADRONIZADO =====
+    BorderPane root = new BorderPane();
+    root.setTop(barraSuperior);
+    root.setCenter(centro);
+    root.setStyle("-fx-background-color: linear-gradient(to bottom, #eef3f8, #dce6f1);");
+
+    Scene scene = new Scene(root, 1050, 600);
+
+    stage.setTitle("Parceiros - CadastroContrato");
+    stage.setScene(scene);
+    stage.setMaximized(true);
+    stage.show();
+
+    atualizarTabela();
+}
+
 
     /**
      * Constrói o painel de formulário com todos os campos do parceiro.
