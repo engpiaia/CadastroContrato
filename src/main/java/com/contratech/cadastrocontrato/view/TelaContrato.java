@@ -94,72 +94,100 @@ public class TelaContrato {
     }
 
     public void exibir() {
-        // === BARRA SUPERIOR ===
-        Label lblTitulo = new Label("Gestão de Contratos");
-        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        Button btnVoltar = new Button("← Menu");
-        btnVoltar.setStyle("-fx-background-color: #607D8B; -fx-text-fill: white; -fx-cursor: hand;");
-        btnVoltar.setOnAction(e -> {
-            TelaPrincipal tela = new TelaPrincipal(stage, usuarioLogado);
-            tela.exibir();
-        });
+    // ===== HEADER PADRÃO =====
+    Label lblTitulo = new Label("Contratos  |  " + usuarioLogado.getNome());
+    lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
+    lblTitulo.setStyle("-fx-text-fill: white;");
 
-        Region espacador = new Region();
-        HBox.setHgrow(espacador, Priority.ALWAYS);
+    Label lblPerfil = new Label(usuarioLogado.getTipoUsuario().toString());
+    lblPerfil.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.2);" +
+            "-fx-padding: 5 10;" +
+            "-fx-background-radius: 20;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold;"
+    );
 
-        HBox barraSuperior = new HBox(15, btnVoltar, lblTitulo, espacador);
-        barraSuperior.setAlignment(Pos.CENTER_LEFT);
-        barraSuperior.setPadding(new Insets(12, 20, 12, 20));
-        barraSuperior.setStyle("-fx-background-color: white; "
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);");
+    Button btnMenu = new Button("🏠 Menu");
+    btnMenu.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.2);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 20;" +
+            "-fx-padding: 6 14;" +
+            "-fx-font-weight: bold;"
+    );
+    btnMenu.setOnAction(e -> new TelaPrincipal(stage, usuarioLogado).exibir());
 
-        // === FORMULÁRIO DO CONTRATO (esquerda) ===
-        VBox formContrato = criarFormularioContrato();
-
-        // === PAINEL DE CLÁUSULAS (abaixo do formulário) ===
-        painelClausulas = criarPainelClausulas();
-
-        // Empilha formulário + cláusulas no ScrollPane da esquerda
-        VBox colunaEsquerda = new VBox(10, formContrato, painelClausulas);
-        colunaEsquerda.setPrefWidth(340);
-        // Se o usuário for apenas visualizador, desabilita o painel esquerdo (visualização somente)
-        if (usuarioLogado.getTipoUsuario() == com.contratech.cadastrocontrato.model.Usuario.TipoUsuario.VISUALIZADOR) {
-            colunaEsquerda.setDisable(true);
-            colunaEsquerda.setStyle(colunaEsquerda.getStyle() + "-fx-opacity: 0.98;");
+    Button btnLogout = new Button("Sair");
+    btnLogout.setStyle(
+            "-fx-background-color: #e74c3c;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 20;" +
+            "-fx-padding: 6 16;" +
+            "-fx-font-weight: bold;"
+    );
+    btnLogout.setOnAction(e -> {
+        if (AlertaUtil.confirmar("Logout", "Deseja sair?")) {
+            new TelaLogin(stage).exibir();
         }
-        colunaEsquerda.setMaxWidth(430);
+    });
 
-        ScrollPane scrollEsquerda = new ScrollPane(colunaEsquerda);
-        scrollEsquerda.setFitToWidth(true);
-        scrollEsquerda.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollEsquerda.setStyle("-fx-background: #ECEFF1; -fx-background-color: #ECEFF1;");
-        scrollEsquerda.setMaxWidth(450);
+    Region espacador = new Region();
+    HBox.setHgrow(espacador, Priority.ALWAYS);
 
-        // === TABELA DE CONTRATOS (direita) ===
-        VBox painelTabela = criarPainelTabelaContratos();
+    HBox header = new HBox(12, lblTitulo, lblPerfil, espacador, btnMenu, btnLogout);
+    header.setAlignment(Pos.CENTER_LEFT);
+    header.setPadding(new Insets(18));
+    header.setStyle(
+            "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10,0,0,3);"
+    );
 
-        // === LAYOUT CENTRAL ===
-        HBox centro = new HBox(15, scrollEsquerda, painelTabela);
-        centro.setPadding(new Insets(15));
-        centro.setFillHeight(true);
-        HBox.setHgrow(painelTabela, Priority.ALWAYS);
+    // ===== FORMULÁRIO =====
+    VBox formContrato = criarFormularioContrato();
 
-        // === LAYOUT PRINCIPAL ===
-        BorderPane root = new BorderPane();
-        root.setTop(barraSuperior);
-        root.setCenter(centro);
-        root.setStyle("-fx-background-color: #ECEFF1;");
+    ScrollPane scrollForm = new ScrollPane(formContrato);
+    scrollForm.setFitToWidth(true);
+    scrollForm.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+    scrollForm.setStyle("-fx-background-color: transparent;");
 
-        Scene scene = new Scene(root, 1200, 700);
-        stage.setTitle("Contratos - CadastroContrato");
-        stage.setScene(scene);
-        stage.setResizable(true);
-        stage.setMaximized(true);
+    // ===== CLÁUSULAS VISÍVEL (FIXO) =====
+    painelClausulas = criarPainelClausulas();
 
-        atualizarTabelaContratos();
-        atualizarEstadoClausulas();
+    VBox esquerda = new VBox(10, scrollForm, painelClausulas);
+    esquerda.setPrefWidth(380);
+    VBox.setVgrow(scrollForm, Priority.ALWAYS);
+
+    if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.VISUALIZADOR) {
+        esquerda.setDisable(true);
+        esquerda.setOpacity(0.98);
     }
+
+    // ===== TABELA =====
+    VBox tabela = criarPainelTabelaContratos();
+
+    HBox centro = new HBox(20, esquerda, tabela);
+    centro.setPadding(new Insets(20));
+    HBox.setHgrow(tabela, Priority.ALWAYS);
+
+    // ===== ROOT =====
+    BorderPane root = new BorderPane();
+    root.setTop(header);
+    root.setCenter(centro);
+    root.setStyle("-fx-background-color: linear-gradient(to bottom, #eef3f8, #dce6f1);");
+
+    Scene scene = new Scene(root, 1200, 700);
+
+    stage.setScene(scene);
+    stage.setTitle("Contratos");
+    stage.setMaximized(true);
+    stage.show();
+
+    atualizarTabelaContratos();
+    atualizarEstadoClausulas();
+}
+
 
     // ===================================================================
     // FORMULÁRIO DO CONTRATO
@@ -923,3 +951,4 @@ public class TelaContrato {
         });
     }
 }
+

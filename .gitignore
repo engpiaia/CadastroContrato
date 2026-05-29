@@ -1,3 +1,22 @@
+# Maven / target
+target/
+
+# IDE files
+.idea/
+*.iml
+
+# NetBeans
+nbproject/private/
+
+# Compiled class files
+*.class
+
+# Logs
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
 # Ambiente
 .env
 
