@@ -18,7 +18,7 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX Controls (botões, tabelas, campos, etc.) -->
+        <!-- JavaFX Controls (botoes, tabelas, campos, etc.) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -63,7 +63,7 @@
             </plugin>
 
             <!-- 
-                Plugin do JavaFX — roda a aplicação no desenvolvimento.
+                Plugin do JavaFX - roda a aplicacao no desenvolvimento.
                 Comando: mvn javafx:run
             -->
             <plugin>
@@ -71,7 +71,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.contratech.cadastrocontrato/com.contratech.cadastrocontrato.App</mainClass>
+                    <mainClass>com.contratech.contratos/com.contratech.contratos.App</mainClass>
                     <options>
                         <option>-Dfile.encoding=UTF-8</option>
                     </options>
@@ -79,8 +79,8 @@
             </plugin>
 
             <!-- 
-                Fat JAR — empacota TODAS as dependências em um único JAR executável.
-                Após 'mvn clean package', gera o arquivo:
+                Fat JAR - empacota TODAS as dependencias em um unico JAR executavel.
+                Apos 'mvn clean package', gera o arquivo:
                   target/CadastroContrato-1.0.0.jar  (fat JAR, ~20-30MB)
                   
                 Executar com: java -jar CadastroContrato-1.0.0.jar
@@ -98,7 +98,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.contratech.cadastrocontrato.Launcher</mainClass>
+                                    <mainClass>com.contratech.contratos.Launcher</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>

@@ -1,37 +1,33 @@
-# Maven / target
+# Environment
+.env
+
+# Maven
 target/
+dependency-reduced-pom.xml
+.mvn/wrapper/dists/
+.mvn/wrapper/apache-maven-*-bin/
 
-# IDE files
-.idea/
-*.iml
-
-# NetBeans
-nbproject/private/
-
-# Compiled class files
+# Keep Maven Wrapper runnable even though other JARs are ignored
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+*.war
 *.class
 
 # Logs
 logs/
 
-# OS files
-.DS_Store
-Thumbs.db
-# Ambiente
-.env
-
-# NetBeans
+# IDEs
+.idea/
+*.iml
+.vscode/
 nbproject/private/
+nb-configuration.xml
+nbactions.xml
 build/
 dist/
 nbbuild/
 nbdist/
 
-# Java
-*.class
-*.jar
-*.war
-
-# Sistema
+# OS files
 .DS_Store
 Thumbs.db

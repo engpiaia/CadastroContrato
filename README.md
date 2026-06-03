@@ -37,7 +37,7 @@ Em Linux/macOS:
 cp .env.example .env
 ```
 
-2. Ajuste os valores:
+1. Ajuste os valores:
 
 ```env
 DB_HOST=localhost
@@ -60,13 +60,13 @@ CREATE DATABASE cadastro_contrato;
 Importe a estrutura:
 
 ```bash
-psql -U postgres -d cadastro_contrato -f database/schema.sql
+psql -U postgres -d cadastro_contrato -f db/schema.sql
 ```
 
 Opcionalmente, importe dados de desenvolvimento:
 
 ```bash
-psql -U postgres -d cadastro_contrato -f database/seed.sql
+psql -U postgres -d cadastro_contrato -f db/seed.sql
 ```
 
 O `seed.sql` recria dados de exemplo e usa `TRUNCATE ... RESTART IDENTITY CASCADE`; portanto, use apenas em ambiente de desenvolvimento.
@@ -141,7 +141,7 @@ Executar o JAR:
 java -jar target/CadastroContrato-1.0.0.jar
 ```
 
-O ponto de entrada do JAR e `com.contratech.cadastrocontrato.Launcher`, que delega para `App`.
+O ponto de entrada do JAR e `com.contratech.contratos.Launcher`, que delega para `App`.
 
 ## Deploy
 
@@ -149,7 +149,7 @@ Para instalar em outro ambiente:
 
 1. Instale JDK 17.
 2. Instale/crie o banco PostgreSQL.
-3. Execute `database/schema.sql` no banco alvo.
+3. Execute `db/schema.sql` no banco alvo.
 4. Crie um `.env` ao lado do JAR ou configure as variaveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD` no sistema.
 5. Copie o JAR gerado em `target/CadastroContrato-1.0.0.jar`.
 6. Execute:
@@ -158,7 +158,7 @@ Para instalar em outro ambiente:
 java -jar CadastroContrato-1.0.0.jar
 ```
 
-Em producao, nao execute `database/seed.sql` se o banco ja tiver dados reais.
+Em producao, nao execute `db/seed.sql` se o banco ja tiver dados reais.
 
 ## Regras de Negocio Relevantes
 
@@ -180,15 +180,18 @@ Em producao, nao execute `database/seed.sql` se o banco ja tiver dados reais.
 ## Estrutura do Projeto
 
 ```text
-database/
+db/
   schema.sql
   seed.sql
-src/main/java/com/contratech/cadastrocontrato/
-  connection/
+src/main/java/com/contratech/contratos/
+  config/
+  dto/
   dao/
   model/
   service/
   util/
+    ui/
+    security/
   view/
 ```
 
