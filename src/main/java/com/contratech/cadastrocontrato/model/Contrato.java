@@ -21,7 +21,7 @@ public class Contrato {
     private String formaPagamento; // A_VISTA, PARCELADO, MENSAL
     private String observacoes;
     private LocalDateTime atualizadoEm;
-    private String status;         // ATIVO, ENCERRADO, CANCELADO
+    private String status;         // ATIVO, CONCLUIDO, CANCELADO, SUSPENSO
 
     // --- Campo auxiliar para exibição na tela ---
     private String parceiroNome;

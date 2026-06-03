@@ -13,6 +13,7 @@ import com.contratech.cadastrocontrato.model.Clausula;
 import com.contratech.cadastrocontrato.model.Contrato;
 import com.contratech.cadastrocontrato.model.Parceiro;
 import com.contratech.cadastrocontrato.model.Usuario;
+import com.contratech.cadastrocontrato.util.AjudaUtil;
 import com.contratech.cadastrocontrato.util.AlertaUtil;
 
 import javafx.collections.FXCollections;
@@ -133,10 +134,14 @@ public class TelaContrato {
         }
     });
 
+    Button btnAjuda = AjudaUtil.criarBotaoAjuda(stage, usuarioLogado,
+            "Cadastro de contratos",
+            () -> new TelaContrato(stage, usuarioLogado).exibir());
+
     Region espacador = new Region();
     HBox.setHgrow(espacador, Priority.ALWAYS);
 
-    HBox header = new HBox(12, lblTitulo, lblPerfil, espacador, btnMenu, btnLogout);
+    HBox header = new HBox(12, lblTitulo, lblPerfil, espacador, btnAjuda, btnMenu, btnLogout);
     header.setAlignment(Pos.CENTER_LEFT);
     header.setPadding(new Insets(18));
     header.setStyle(
@@ -178,6 +183,9 @@ public class TelaContrato {
     root.setStyle("-fx-background-color: linear-gradient(to bottom, #eef3f8, #dce6f1);");
 
     Scene scene = new Scene(root, 1200, 700);
+    AjudaUtil.registrarAtalhoF1(scene, stage, usuarioLogado,
+            "Cadastro de contratos",
+            () -> new TelaContrato(stage, usuarioLogado).exibir());
 
     stage.setScene(scene);
     stage.setTitle("Contratos");
@@ -266,7 +274,7 @@ public class TelaContrato {
 
         // --- Status ---
         cbStatus = new ComboBox<>(FXCollections.observableArrayList(
-                "ATIVO", "ENCERRADO", "CANCELADO", "SUSPENSO"));
+                "ATIVO", "CONCLUIDO", "CANCELADO", "SUSPENSO"));
         cbStatus.setPromptText("Status");
         cbStatus.setMaxWidth(Double.MAX_VALUE);
 

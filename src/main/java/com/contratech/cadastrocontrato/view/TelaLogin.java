@@ -2,6 +2,7 @@ package com.contratech.cadastrocontrato.view;
 
 import com.contratech.cadastrocontrato.dao.UsuarioDAO;
 import com.contratech.cadastrocontrato.model.Usuario;
+import com.contratech.cadastrocontrato.util.AjudaUtil;
 import com.contratech.cadastrocontrato.util.AlertaUtil;
 import com.contratech.cadastrocontrato.util.SenhaUtil;
 
@@ -13,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -24,6 +26,7 @@ public class TelaLogin {
 
     private TextField txtEmail;
     private PasswordField txtSenha;
+    private TextField txtSenhaVisivel;
     private Button btnEntrar;
 
     public TelaLogin(Stage stage) {
@@ -49,6 +52,40 @@ public class TelaLogin {
         txtSenha.setPromptText("Senha");
         txtSenha.setPrefHeight(40);
 
+        txtSenhaVisivel = new TextField();
+        txtSenhaVisivel.setPromptText("Senha");
+        txtSenhaVisivel.setPrefHeight(40);
+        txtSenhaVisivel.managedProperty().bind(txtSenhaVisivel.visibleProperty());
+        txtSenhaVisivel.visibleProperty().set(false);
+        txtSenhaVisivel.textProperty().bindBidirectional(txtSenha.textProperty());
+        txtSenhaVisivel.setOnAction(e -> realizarLogin());
+
+        Button btnMostrarSenha = new Button();
+        btnMostrarSenha.setGraphic(criarIconeOlho());
+        btnMostrarSenha.setTooltip(new Tooltip("Mostrar senha"));
+        btnMostrarSenha.setMinWidth(36);
+        btnMostrarSenha.setPrefWidth(36);
+        btnMostrarSenha.setPrefHeight(30);
+        btnMostrarSenha.setFocusTraversable(false);
+        btnMostrarSenha.setStyle(
+                "-fx-background-color: #eef3f8;"
+                + "-fx-background-radius: 8;"
+                + "-fx-border-color: #c9d3dc;"
+                + "-fx-border-radius: 8;"
+                + "-fx-cursor: hand;"
+        );
+        btnMostrarSenha.setOnMousePressed(e -> alternarSenhaVisivel(true));
+        btnMostrarSenha.setOnMouseReleased(e -> alternarSenhaVisivel(false));
+        btnMostrarSenha.setOnMouseExited(e -> alternarSenhaVisivel(false));
+
+        StackPane campoSenha = new StackPane(txtSenha, txtSenhaVisivel, btnMostrarSenha);
+        StackPane.setAlignment(btnMostrarSenha, Pos.CENTER_RIGHT);
+        StackPane.setMargin(btnMostrarSenha, new Insets(0, 8, 0, 0));
+        txtSenha.setMaxWidth(Double.MAX_VALUE);
+        txtSenhaVisivel.setMaxWidth(Double.MAX_VALUE);
+        txtSenha.setStyle("-fx-padding: 0 48 0 8;");
+        txtSenhaVisivel.setStyle("-fx-padding: 0 48 0 8;");
+
         // === BOTÃO ===
         btnEntrar = new Button("Entrar");
         btnEntrar.setPrefHeight(45);
@@ -65,14 +102,22 @@ public class TelaLogin {
         btnEntrar.setOnAction(e -> realizarLogin());
         txtSenha.setOnAction(e -> realizarLogin());
 
+        Button btnAjuda = new Button("Ajuda");
+        btnAjuda.setPrefHeight(36);
+        btnAjuda.setMaxWidth(Double.MAX_VALUE);
+        btnAjuda.setStyle("-fx-cursor: hand;");
+        btnAjuda.setOnAction(e -> AjudaUtil.abrirAjuda(stage, null, "Login",
+                () -> new TelaLogin(stage).exibir()));
+
         // === FORMULÁRIO ===
         VBox formulario = new VBox(15,
                 lblTitulo,
                 lblSubtitulo,
                 new Separator(),
                 txtEmail,
-                txtSenha,
-                btnEntrar
+                campoSenha,
+                btnEntrar,
+                btnAjuda
         );
 
         formulario.setAlignment(Pos.CENTER);
@@ -158,6 +203,8 @@ public class TelaLogin {
 
         // === SCENE ===
         Scene scene = new Scene(root, 500, 420);
+        AjudaUtil.registrarAtalhoF1(scene, stage, null, "Login",
+                () -> new TelaLogin(stage).exibir());
 
         stage.setTitle("Login - CadastroContrato");
         stage.setScene(scene);
@@ -198,5 +245,27 @@ public class TelaLogin {
         } finally {
             btnEntrar.setDisable(false);
         }
+    }
+
+    private void alternarSenhaVisivel(boolean mostrar) {
+        txtSenhaVisivel.setVisible(mostrar);
+        txtSenha.setVisible(!mostrar);
+
+        if (mostrar) {
+            txtSenhaVisivel.requestFocus();
+            txtSenhaVisivel.positionCaret(txtSenhaVisivel.getText().length());
+        } else {
+            txtSenha.requestFocus();
+            txtSenha.positionCaret(txtSenha.getText().length());
+        }
+    }
+
+    private SVGPath criarIconeOlho() {
+        SVGPath olho = new SVGPath();
+        olho.setContent("M1 8 C4 2 12 2 15 8 C12 14 4 14 1 8 M8 5 A3 3 0 1 0 8 11 A3 3 0 1 0 8 5");
+        olho.setFill(Color.web("#2c3e50"));
+        olho.setScaleX(0.9);
+        olho.setScaleY(0.9);
+        return olho;
     }
 }

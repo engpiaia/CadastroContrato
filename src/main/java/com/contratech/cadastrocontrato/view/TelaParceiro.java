@@ -7,6 +7,7 @@ import javafx.concurrent.Task;
 import com.contratech.cadastrocontrato.dao.ParceiroDAO;
 import com.contratech.cadastrocontrato.model.Parceiro;
 import com.contratech.cadastrocontrato.model.Usuario;
+import com.contratech.cadastrocontrato.util.AjudaUtil;
 import com.contratech.cadastrocontrato.util.AlertaUtil;
 
 import javafx.collections.FXCollections;
@@ -105,6 +106,10 @@ public class TelaParceiro {
         }
     });
 
+    Button btnAjuda = AjudaUtil.criarBotaoAjuda(stage, usuarioLogado,
+            "Cadastro de parceiros",
+            () -> new TelaParceiro(stage, usuarioLogado).exibir());
+
     Region espaco = new Region();
     HBox.setHgrow(espaco, Priority.ALWAYS);
 
@@ -112,6 +117,7 @@ public class TelaParceiro {
             lblTitulo,
             lblPerfil,
             espaco,
+            btnAjuda,
             btnVoltar,
             btnLogout
     );
@@ -146,6 +152,9 @@ public class TelaParceiro {
     root.setStyle("-fx-background-color: linear-gradient(to bottom, #eef3f8, #dce6f1);");
 
     Scene scene = new Scene(root, 1050, 600);
+    AjudaUtil.registrarAtalhoF1(scene, stage, usuarioLogado,
+            "Cadastro de parceiros",
+            () -> new TelaParceiro(stage, usuarioLogado).exibir());
 
     stage.setTitle("Parceiros - CadastroContrato");
     stage.setScene(scene);

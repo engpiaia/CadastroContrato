@@ -3,6 +3,7 @@ package com.contratech.cadastrocontrato.view;
 import com.contratech.cadastrocontrato.dao.UsuarioDAO;
 import com.contratech.cadastrocontrato.model.Usuario;
 import com.contratech.cadastrocontrato.model.Usuario.TipoUsuario;
+import com.contratech.cadastrocontrato.util.AjudaUtil;
 import com.contratech.cadastrocontrato.util.AlertaUtil;
 import com.contratech.cadastrocontrato.util.SenhaUtil;
 
@@ -110,6 +111,10 @@ public class TelaUsuario {
         }
     });
 
+    Button btnAjuda = AjudaUtil.criarBotaoAjuda(stage, usuarioLogado,
+            "Gestao de usuarios",
+            () -> new TelaUsuario(stage, usuarioLogado).exibir());
+
     Region espaco = new Region();
     HBox.setHgrow(espaco, Priority.ALWAYS);
 
@@ -117,6 +122,7 @@ public class TelaUsuario {
             lblTitulo,
             lblPerfil,
             espaco,
+            btnAjuda,
             btnVoltar,
             btnLogout
     );
@@ -145,6 +151,9 @@ public class TelaUsuario {
     root.setStyle("-fx-background-color: linear-gradient(to bottom, #eef3f8, #dce6f1);");
 
     Scene scene = new Scene(root, 900, 550);
+    AjudaUtil.registrarAtalhoF1(scene, stage, usuarioLogado,
+            "Gestao de usuarios",
+            () -> new TelaUsuario(stage, usuarioLogado).exibir());
 
     stage.setTitle("Usuários - CadastroContrato");
     stage.setScene(scene);
