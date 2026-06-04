@@ -9,14 +9,15 @@ import com.contratech.contratos.util.ui.AlertaUtil;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -36,9 +37,13 @@ public class TelaLogin {
     public void exibir() {
 
         // === TÍTULO ===
-        Label lblTitulo = new Label("Contratech");
-        lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 26));
-        lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
+        ImageView logo = new ImageView(new Image(
+                getClass().getResource("/images/contratech-logo.png").toExternalForm()
+        ));
+        logo.setViewport(new Rectangle2D(45, 345, 910, 285));
+        logo.setFitWidth(310);
+        logo.setPreserveRatio(true);
+        logo.setSmooth(true);
 
         Label lblSubtitulo = new Label("Sistema de Gestão de Contratos");
         lblSubtitulo.setStyle("-fx-text-fill: #7f8c8d;");
@@ -111,7 +116,7 @@ public class TelaLogin {
 
         // === FORMULÁRIO ===
         VBox formulario = new VBox(15,
-                lblTitulo,
+                logo,
                 lblSubtitulo,
                 new Separator(),
                 txtEmail,
