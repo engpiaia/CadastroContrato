@@ -10,6 +10,9 @@ import com.contratech.contratos.model.Usuario;
 import com.contratech.contratos.util.ui.AjudaUtil;
 import com.contratech.contratos.util.ui.AlertaUtil;
 
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -21,6 +24,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -179,6 +183,7 @@ public class TelaParceiro {
         txtCnpjCpf = new TextField();
         txtCnpjCpf.setPromptText("CNPJ ou CPF (somente números)");
         txtCnpjCpf.setMaxWidth(Double.MAX_VALUE);
+        aplicarMascara(txtCnpjCpf, 14, this::formatarDocumento);
 
 // Dispara consulta à API ao sair do campo com 14 dígitos (CNPJ)
         txtCnpjCpf.focusedProperty().addListener((obs, estavaFocado, estaFocado) -> {
@@ -212,6 +217,7 @@ public class TelaParceiro {
         txtCep = new TextField();
         txtCep.setPromptText("CEP (somente números)");
         txtCep.setMaxWidth(Double.MAX_VALUE);
+        aplicarMascara(txtCep, 8, this::formatarCep);
 
         // Cidade + UF lado a lado
         HBox linhaCidadeUf = new HBox(10, txtCidade, txtUf);
@@ -220,6 +226,7 @@ public class TelaParceiro {
         txtTelefone = new TextField();
         txtTelefone.setPromptText("(49) 99999-9999");
         txtTelefone.setMaxWidth(Double.MAX_VALUE);
+        aplicarMascara(txtTelefone, 11, this::formatarTelefone);
 
         txtEmail = new TextField();
         txtEmail.setPromptText("email@exemplo.com");
@@ -599,5 +606,57 @@ public class TelaParceiro {
         if (campo != null && campo.getText().trim().isEmpty() && valor != null) {
             campo.setText(valor);
         }
+    }
+
+    private void aplicarMascara(TextField campo, int maxDigitos, Function<String, String> formatador) {
+        UnaryOperator<TextFormatter.Change> filtro = change -> {
+            if (!change.isContentChange()) {
+                return change;
+            }
+
+            String digitos = change.getControlNewText().replaceAll("[^0-9]", "");
+            if (digitos.length() > maxDigitos) {
+                digitos = digitos.substring(0, maxDigitos);
+            }
+
+            change.setRange(0, change.getControlText().length());
+            change.setText(formatador.apply(digitos));
+            change.setCaretPosition(change.getText().length());
+            change.setAnchor(change.getText().length());
+            return change;
+        };
+        campo.setTextFormatter(new TextFormatter<>(filtro));
+    }
+
+    private String formatarDocumento(String digitos) {
+        if (digitos.length() <= 11) {
+            return aplicarPadrao(digitos, "###.###.###-##");
+        }
+        return aplicarPadrao(digitos, "##.###.###/####-##");
+    }
+
+    private String formatarCep(String digitos) {
+        return aplicarPadrao(digitos, "#####-###");
+    }
+
+    private String formatarTelefone(String digitos) {
+        if (digitos.length() <= 10) {
+            return aplicarPadrao(digitos, "(##) ####-####");
+        }
+        return aplicarPadrao(digitos, "(##) #####-####");
+    }
+
+    private String aplicarPadrao(String digitos, String padrao) {
+        StringBuilder formatado = new StringBuilder();
+        int indice = 0;
+        for (int i = 0; i < padrao.length() && indice < digitos.length(); i++) {
+            char atual = padrao.charAt(i);
+            if (atual == '#') {
+                formatado.append(digitos.charAt(indice++));
+            } else {
+                formatado.append(atual);
+            }
+        }
+        return formatado.toString();
     }
 }

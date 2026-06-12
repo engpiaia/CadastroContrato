@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import com.contratech.contratos.dao.ClausulaDAO;
 import com.contratech.contratos.dao.ContratoDAO;
@@ -23,6 +24,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
@@ -32,6 +34,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -41,6 +44,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 /**
  * Tela de Gestão de Contratos com painel integrado de Cláusulas.
@@ -68,8 +72,8 @@ public class TelaContrato {
     private TextField txtValor;
     private TextField txtMulta;
     private ComboBox<String> cbFormaPagamento;
-    private TextField txtDataInicio;
-    private TextField txtDataFim;
+    private DatePicker txtDataInicio;
+    private DatePicker txtDataFim;
     private ComboBox<String> cbStatus;
     private TextArea txtObservacoes;
     private TextField txtPesquisa;
@@ -238,10 +242,12 @@ public class TelaContrato {
         txtValor = new TextField();
         txtValor.setPromptText("0.00");
         txtValor.setMaxWidth(Double.MAX_VALUE);
+        aplicarMascaraMonetaria(txtValor);
 
         txtMulta = new TextField();
         txtMulta.setPromptText("0.00");
         txtMulta.setMaxWidth(Double.MAX_VALUE);
+        aplicarMascaraMonetaria(txtMulta);
 
         HBox hbValores = new HBox(10);
         VBox vbValor = new VBox(2, new Label("Valor (R$):"), txtValor);
@@ -257,11 +263,11 @@ public class TelaContrato {
         cbFormaPagamento.setMaxWidth(Double.MAX_VALUE);
 
         // --- Datas ---
-        txtDataInicio = new TextField();
+        txtDataInicio = criarDatePicker();
         txtDataInicio.setPromptText("dd/MM/yyyy");
         txtDataInicio.setMaxWidth(Double.MAX_VALUE);
 
-        txtDataFim = new TextField();
+        txtDataFim = criarDatePicker();
         txtDataFim.setPromptText("dd/MM/yyyy");
         txtDataFim.setMaxWidth(Double.MAX_VALUE);
 
@@ -313,19 +319,23 @@ public class TelaContrato {
         form.setPadding(new Insets(15));
         form.setMinWidth(340);
         form.setMaxWidth(450);
-        form.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 8;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
 
         form.getChildren().addAll(
                 lblForm,
                 new Separator(),
+                criarTituloSecao("Dados do contrato"),
                 new Label("Nº Contrato:"), txtNumeroContrato,
                 new Label("Parceiro:"), cbParceiro,
                 new Label("Objeto:"), txtObjeto,
                 new Label("Descrição:"), txtDescricao,
                 new Label("Tipo:"), cbTipo,
+                criarTituloSecao("Prazos e valores"),
                 hbValores,
                 new Label("Forma de Pagamento:"), cbFormaPagamento,
                 hbDatas,
+                criarTituloSecao("Situacao"),
                 new Label("Status:"), cbStatus,
                 new Label("Observações:"), txtObservacoes,
                 new Separator(),
@@ -403,8 +413,9 @@ public class TelaContrato {
         // === Monta o painel ===
         VBox painel = new VBox(8);
         painel.setPadding(new Insets(12));
-        painel.setStyle("-fx-background-color: #F3E5F5; -fx-background-radius: 6; "
-                + "-fx-border-color: #CE93D8; -fx-border-radius: 6; -fx-border-width: 1;");
+        painel.setStyle("-fx-background-color: #F3E5F5; -fx-background-radius: 8; "
+                + "-fx-border-color: #CE93D8; -fx-border-radius: 8; -fx-border-width: 1;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.08), 12,0,0,3);");
         painel.setMaxWidth(Double.MAX_VALUE);
 
         painel.getChildren().addAll(
@@ -473,6 +484,7 @@ public class TelaContrato {
         listaContratos = FXCollections.observableArrayList();
         tabelaContratos.setItems(listaContratos);
         tabelaContratos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tabelaContratos.setPlaceholder(criarEmptyStateContratos());
 
         configurarColunasContratos();
 
@@ -488,7 +500,8 @@ public class TelaContrato {
 
         VBox painel = new VBox(10, barraPesquisa, tabelaContratos);
         painel.setPadding(new Insets(15));
-        painel.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
+        painel.setStyle("-fx-background-color: white; -fx-background-radius: 8;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
         painel.setMaxWidth(Double.MAX_VALUE);
 
         return painel;
@@ -532,7 +545,30 @@ public class TelaContrato {
 
         TableColumn<Contrato, String> colStatus = new TableColumn<>("Status");
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colStatus.setPrefWidth(70);
+        colStatus.setPrefWidth(95);
+        colStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                    setGraphic(null);
+                    return;
+                }
+
+                int index = getIndex();
+                if (index < 0 || index >= getTableView().getItems().size()) {
+                    setText("");
+                    setGraphic(null);
+                    return;
+                }
+
+                Contrato contrato = getTableView().getItems().get(index);
+                Label badge = criarBadgeStatus(contrato);
+                setText("");
+                setGraphic(badge);
+            }
+        });
 
         TableColumn<Contrato, LocalDate> colVencimento = new TableColumn<>("Vencimento");
         colVencimento.setPrefWidth(85);
@@ -581,8 +617,8 @@ public class TelaContrato {
         String valorStr = txtValor.getText().trim();
         String multaStr = txtMulta.getText().trim();
         String formaPag = cbFormaPagamento.getValue();
-        String dataInicioStr = txtDataInicio.getText().trim();
-        String dataFimStr = txtDataFim.getText().trim();
+        LocalDate dataInicio = txtDataInicio.getValue();
+        LocalDate dataFim = txtDataFim.getValue();
         String status = cbStatus.getValue();
         String observacoes = txtObservacoes.getText().trim();
 
@@ -615,12 +651,12 @@ public class TelaContrato {
             return;
         }
 
-        if (dataInicioStr.isEmpty()) {
+        if (dataInicio == null) {
             AlertaUtil.aviso("Campo obrigatorio", "Informe a data de inicio.");
             txtDataInicio.requestFocus();
             return;
         }
-        if (dataFimStr.isEmpty()) {
+        if (dataFim == null) {
             AlertaUtil.aviso("Campo obrigatorio", "Informe a data de fim.");
             txtDataFim.requestFocus();
             return;
@@ -659,17 +695,6 @@ public class TelaContrato {
         if (multa.compareTo(BigDecimal.ZERO) < 0) {
             AlertaUtil.aviso("Multa invalida", "A multa nao pode ser negativa.");
             txtMulta.requestFocus();
-            return;
-        }
-
-        // Datas
-        LocalDate dataInicio = null;
-        LocalDate dataFim = null;
-        try {
-            if (!dataInicioStr.isEmpty()) dataInicio = LocalDate.parse(dataInicioStr, FMT);
-            if (!dataFimStr.isEmpty()) dataFim = LocalDate.parse(dataFimStr, FMT);
-        } catch (DateTimeParseException e) {
-            AlertaUtil.aviso("Data inválida", "Use o formato dd/MM/yyyy.");
             return;
         }
 
@@ -887,8 +912,8 @@ public class TelaContrato {
                 ? c.getMulta().toPlainString() : "");
 
         cbFormaPagamento.setValue(c.getFormaPagamento());
-        txtDataInicio.setText(c.getDataInicio() != null ? c.getDataInicio().format(FMT) : "");
-        txtDataFim.setText(c.getDataFim() != null ? c.getDataFim().format(FMT) : "");
+        txtDataInicio.setValue(c.getDataInicio());
+        txtDataFim.setValue(c.getDataFim());
         cbStatus.setValue(c.getStatus());
         txtObservacoes.setText(c.getObservacoes() != null ? c.getObservacoes() : "");
 
@@ -922,8 +947,8 @@ public class TelaContrato {
         txtValor.clear();
         txtMulta.clear();
         cbFormaPagamento.setValue(null);
-        txtDataInicio.clear();
-        txtDataFim.clear();
+        txtDataInicio.setValue(null);
+        txtDataFim.setValue(null);
         cbStatus.setValue(null);
         txtObservacoes.clear();
 
@@ -988,6 +1013,102 @@ public class TelaContrato {
                 setText(empty || item == null ? "" : item.getRazaoSocial());
             }
         });
+    }
+
+    private DatePicker criarDatePicker() {
+        DatePicker datePicker = new DatePicker();
+        datePicker.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(LocalDate date) {
+                return date == null ? "" : date.format(FMT);
+            }
+
+            @Override
+            public LocalDate fromString(String value) {
+                if (value == null || value.trim().isEmpty()) {
+                    return null;
+                }
+                try {
+                    return LocalDate.parse(value.trim(), FMT);
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
+            }
+        });
+        return datePicker;
+    }
+
+    private void aplicarMascaraMonetaria(TextField campo) {
+        UnaryOperator<TextFormatter.Change> filtro = change -> {
+            String novoTexto = change.getControlNewText();
+            if (novoTexto.isEmpty() || novoTexto.matches("\\d{0,12}([,.]\\d{0,2})?")) {
+                return change;
+            }
+            return null;
+        };
+        campo.setTextFormatter(new TextFormatter<>(filtro));
+    }
+
+    private Label criarTituloSecao(String texto) {
+        Label label = new Label(texto);
+        label.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        label.setStyle("-fx-text-fill: #4ca1af; -fx-padding: 8 0 0 0;");
+        return label;
+    }
+
+    private VBox criarEmptyStateContratos() {
+        Label titulo = new Label("Nenhum contrato encontrado");
+        titulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 15));
+        titulo.setStyle("-fx-text-fill: #2c3e50;");
+
+        Label detalhe = new Label("Cadastre um contrato ou ajuste a pesquisa.");
+        detalhe.setStyle("-fx-text-fill: #7f8c8d;");
+
+        VBox box = new VBox(6, titulo, detalhe);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(24));
+        return box;
+    }
+
+    private Label criarBadgeStatus(Contrato contrato) {
+        String texto = contrato.getStatus();
+        String corFundo = "#eceff1";
+        String corTexto = "#37474f";
+
+        LocalDate vencimento = contrato.getDataFim();
+        boolean ativo = "ATIVO".equalsIgnoreCase(contrato.getStatus());
+        if (ativo && vencimento != null && vencimento.isBefore(LocalDate.now())) {
+            texto = "VENCIDO";
+            corFundo = "#ffebee";
+            corTexto = "#b71c1c";
+        } else if (ativo && vencimento != null && !vencimento.isAfter(LocalDate.now().plusDays(30))) {
+            texto = "A VENCER";
+            corFundo = "#fff8e1";
+            corTexto = "#8a5a00";
+        } else if ("ATIVO".equalsIgnoreCase(contrato.getStatus())) {
+            corFundo = "#e8f5e9";
+            corTexto = "#1b5e20";
+        } else if ("CONCLUIDO".equalsIgnoreCase(contrato.getStatus())) {
+            corFundo = "#e3f2fd";
+            corTexto = "#0d47a1";
+        } else if ("SUSPENSO".equalsIgnoreCase(contrato.getStatus())) {
+            corFundo = "#fff8e1";
+            corTexto = "#8a5a00";
+        } else if ("CANCELADO".equalsIgnoreCase(contrato.getStatus())) {
+            corFundo = "#eeeeee";
+            corTexto = "#616161";
+        }
+
+        Label badge = new Label(texto);
+        badge.setMinWidth(72);
+        badge.setAlignment(Pos.CENTER);
+        badge.setStyle("-fx-background-color: " + corFundo + ";"
+                + "-fx-text-fill: " + corTexto + ";"
+                + "-fx-font-size: 11px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-padding: 3 8;"
+                + "-fx-background-radius: 999;");
+        return badge;
     }
 }
 
