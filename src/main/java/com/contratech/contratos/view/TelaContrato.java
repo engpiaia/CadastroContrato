@@ -615,6 +615,17 @@ public class TelaContrato {
             return;
         }
 
+        if (dataInicioStr.isEmpty()) {
+            AlertaUtil.aviso("Campo obrigatorio", "Informe a data de inicio.");
+            txtDataInicio.requestFocus();
+            return;
+        }
+        if (dataFimStr.isEmpty()) {
+            AlertaUtil.aviso("Campo obrigatorio", "Informe a data de fim.");
+            txtDataFim.requestFocus();
+            return;
+        }
+
         // Valor (BigDecimal)
         BigDecimal valor = BigDecimal.ZERO;
         if (!valorStr.isEmpty()) {
@@ -627,6 +638,12 @@ public class TelaContrato {
             }
         }
 
+        if (valor.compareTo(BigDecimal.ZERO) < 0) {
+            AlertaUtil.aviso("Valor invalido", "O valor nao pode ser negativo.");
+            txtValor.requestFocus();
+            return;
+        }
+
         // Multa (BigDecimal)
         BigDecimal multa = BigDecimal.ZERO;
         if (!multaStr.isEmpty()) {
@@ -637,6 +654,12 @@ public class TelaContrato {
                 txtMulta.requestFocus();
                 return;
             }
+        }
+
+        if (multa.compareTo(BigDecimal.ZERO) < 0) {
+            AlertaUtil.aviso("Multa invalida", "A multa nao pode ser negativa.");
+            txtMulta.requestFocus();
+            return;
         }
 
         // Datas
@@ -652,6 +675,15 @@ public class TelaContrato {
 
         if (dataInicio != null && dataFim != null && dataFim.isBefore(dataInicio)) {
             AlertaUtil.aviso("Data inválida", "Data fim não pode ser anterior à data início.");
+            return;
+        }
+
+        boolean isInsercao = (contratoSelecionado == null);
+        int idAtual = isInsercao ? 0 : contratoSelecionado.getId();
+        if (contratoDAO.numeroJaExiste(numeroContrato, idAtual)) {
+            AlertaUtil.erro("Numero duplicado",
+                    "Ja existe um contrato cadastrado com este numero.");
+            txtNumeroContrato.requestFocus();
             return;
         }
 
@@ -671,7 +703,6 @@ public class TelaContrato {
         contrato.setObservacoes(observacoes);
 
         // --- Persiste ---
-        boolean isInsercao = (contratoSelecionado == null);
         boolean sucesso;
 
         if (isInsercao) {

@@ -66,7 +66,7 @@ CREATE TABLE public.contratos (
     data_inicio date NOT NULL,
     data_fim date NOT NULL,
     criado_em timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    numero_contrato character varying(50),
+    numero_contrato character varying(50) NOT NULL,
     descricao text,
     tipo character varying(30) DEFAULT 'SERVICO'::character varying,
     forma_pagamento character varying(50),
@@ -238,6 +238,14 @@ ALTER TABLE ONLY public.contratos
 
 
 --
+-- Name: contratos contratos_numero_contrato_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.contratos
+    ADD CONSTRAINT contratos_numero_contrato_key UNIQUE (numero_contrato);
+
+
+--
 -- Name: parceiros parceiros_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -365,4 +373,3 @@ ALTER TABLE ONLY public.contratos
 --
 -- PostgreSQL database dump complete
 --
-

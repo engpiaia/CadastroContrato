@@ -25,7 +25,7 @@ public class ParceiroDAO {
      */
     public boolean documentoJaExiste(String documento, int idExcluir) {
         String sql = "SELECT COUNT(*) FROM parceiros "
-                + "WHERE documento = ? AND ativo = TRUE AND id != ?";
+                + "WHERE cnpj_cpf = ? AND ativo = TRUE AND id != ?";
 
         try (Connection conn = ConnectionFactory.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -123,7 +123,7 @@ public class ParceiroDAO {
     }
 
     public boolean cnpjJaExiste(String cnpj, int idIgnorar) {
-        String sql = "SELECT COUNT(*) FROM parceiros WHERE cnpj_cpf = ? AND id != ?";
+        String sql = "SELECT COUNT(*) FROM parceiros WHERE cnpj_cpf = ? AND ativo = TRUE AND id != ?";
         try (Connection conn = ConnectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, cnpj);
