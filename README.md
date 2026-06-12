@@ -71,6 +71,16 @@ psql -U postgres -d cadastro_contrato -f db/seed.sql
 
 O `seed.sql` recria dados de exemplo e usa `TRUNCATE ... RESTART IDENTITY CASCADE`; portanto, use apenas em ambiente de desenvolvimento.
 
+Para uma base de demo mais completa, com 20 parceiros e 50 contratos variados, execute:
+
+```bash
+psql -U postgres -d cadastro_contrato -v ON_ERROR_STOP=1 -f db/demo_seed.sql
+```
+
+No VS Code/Database Client, abra `db/demo_seed.sql` e execute o arquivo inteiro na conexao PostgreSQL da demo.
+
+O `demo_seed.sql` tambem recria os dados com `TRUNCATE ... RESTART IDENTITY CASCADE`; use somente em ambiente de demonstracao ou desenvolvimento.
+
 Usuarios criados pelo seed:
 
 | Perfil | E-mail | Senha |
