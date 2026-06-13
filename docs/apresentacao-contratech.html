@@ -228,5 +228,59 @@
     <span class="slide-number">08/08</span>
   </section>
 </main>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let currentSlideIndex = 0;
+
+  document.addEventListener('keydown', (event) => {
+    if (event.code === 'Space') {
+      event.preventDefault();
+      
+      if (event.shiftKey) {
+        // Shift + Espaço: slide anterior
+        if (currentSlideIndex > 0) {
+          currentSlideIndex--;
+          slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        // Espaço: próximo slide
+        if (currentSlideIndex < slides.length - 1) {
+          currentSlideIndex++;
+          slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+    
+    // Setas do teclado como alternativa
+    if (event.code === 'ArrowDown' || event.code === 'ArrowRight') {
+      event.preventDefault();
+      if (currentSlideIndex < slides.length - 1) {
+        currentSlideIndex++;
+        slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    
+    if (event.code === 'ArrowUp' || event.code === 'ArrowLeft') {
+      event.preventDefault();
+      if (currentSlideIndex > 0) {
+        currentSlideIndex--;
+        slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  });
+
+  // Atualizar índice do slide ao fazer scroll com mouse
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        currentSlideIndex = Array.from(slides).indexOf(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  slides.forEach((slide) => observer.observe(slide));
+</script>
+
 </body>
 </html>
