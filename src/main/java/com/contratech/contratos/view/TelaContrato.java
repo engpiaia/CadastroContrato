@@ -307,6 +307,9 @@ public class TelaContrato {
         btnExcluir.setOnAction(e -> excluirContrato());
 
         HBox botoesAcao = new HBox(10, btnSalvar, btnExcluir);
+        botoesAcao.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btnSalvar, Priority.ALWAYS);
+        HBox.setHgrow(btnExcluir, Priority.ALWAYS);
 
         Button btnLimpar = new Button("Novo Contrato");
         btnLimpar.setPrefWidth(270);
@@ -652,12 +655,12 @@ public class TelaContrato {
         }
 
         if (dataInicio == null) {
-            AlertaUtil.aviso("Campo obrigatorio", "Informe a data de inicio.");
+            AlertaUtil.aviso("Campo obrigatório", "Informe a data de início.");
             txtDataInicio.requestFocus();
             return;
         }
         if (dataFim == null) {
-            AlertaUtil.aviso("Campo obrigatorio", "Informe a data de fim.");
+            AlertaUtil.aviso("Campo obrigatório", "Informe a data de fim.");
             txtDataFim.requestFocus();
             return;
         }
@@ -675,7 +678,7 @@ public class TelaContrato {
         }
 
         if (valor.compareTo(BigDecimal.ZERO) < 0) {
-            AlertaUtil.aviso("Valor invalido", "O valor nao pode ser negativo.");
+            AlertaUtil.aviso("Valor inválido", "O valor não pode ser negativo.");
             txtValor.requestFocus();
             return;
         }
@@ -693,7 +696,7 @@ public class TelaContrato {
         }
 
         if (multa.compareTo(BigDecimal.ZERO) < 0) {
-            AlertaUtil.aviso("Multa invalida", "A multa nao pode ser negativa.");
+            AlertaUtil.aviso("Multa inválida", "A multa não pode ser negativa.");
             txtMulta.requestFocus();
             return;
         }

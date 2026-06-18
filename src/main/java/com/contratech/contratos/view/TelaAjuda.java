@@ -106,7 +106,7 @@ public class TelaAjuda {
         txtPesquisa.textProperty().addListener((obs, antigo, novo) -> filtrarTopicos(novo));
 
         VBox lateral = new VBox(10,
-                criarTituloSecao("Topicos"),
+                criarTituloSecao("Tópicos"),
                 txtPesquisa,
                 listaTopicos
         );
@@ -115,7 +115,7 @@ public class TelaAjuda {
         VBox.setVgrow(listaTopicos, Priority.ALWAYS);
 
         VBox conteudo = new VBox(10,
-                criarTituloSecao("Conteudo"),
+                criarTituloSecao("Conteúdo"),
                 new Separator(),
                 txtConteudo
         );
@@ -170,14 +170,14 @@ public class TelaAjuda {
         if (!itensFiltrados.isEmpty()) {
             listaTopicos.getSelectionModel().select(0);
         } else {
-            txtConteudo.setText("Nenhum topico encontrado para a pesquisa informada.");
+            txtConteudo.setText("Nenhum tópico encontrado para a pesquisa informada.");
         }
     }
 
     private void selecionarTopico(String topico) {
         String alvo = topico != null && topicos.containsKey(topico)
                 ? topico
-                : "Visao geral";
+                : "Visão geral";
 
         listaTopicos.getSelectionModel().select(alvo);
         exibirTopico(alvo);
@@ -185,7 +185,7 @@ public class TelaAjuda {
 
     private void exibirTopico(String topico) {
         String conteudo = topicos.get(topico);
-        txtConteudo.setText((conteudo != null ? conteudo : "Topico nao encontrado."));
+        txtConteudo.setText((conteudo != null ? conteudo : "Tópico não encontrado."));
         txtConteudo.positionCaret(0);
     }
 
@@ -202,25 +202,25 @@ public class TelaAjuda {
     private Map<String, String> criarTopicos() {
         Map<String, String> mapa = new LinkedHashMap<>();
 
-        mapa.put("Visao geral", """
-                VISAO GERAL DO CADASTROCONTRATO
+        mapa.put("Visão geral", """
+                VISÃO GERAL DO CADASTROCONTRATO
 
-                O CadastroContrato e um sistema desktop para organizar parceiros, contratos, clausulas e usuarios.
+                O CadastroContrato é um sistema desktop para organizar parceiros, contratos, cláusulas e usuários.
 
-                O fluxo comum de uso e:
+                O fluxo comum de uso é:
                 1. Entrar no sistema com e-mail e senha.
                 2. Cadastrar parceiros.
                 3. Cadastrar contratos vinculados aos parceiros.
-                4. Registrar as clausulas de cada contrato.
+                4. Registrar as cláusulas de cada contrato.
                 5. Acompanhar alertas, vencimentos e totais no dashboard.
 
-                Use F1 em qualquer tela para abrir esta ajuda. O botao Ajuda no topo das telas faz a mesma coisa.
+                Use F1 em qualquer tela para abrir esta ajuda. O botão Ajuda no topo das telas faz a mesma coisa.
                 """);
 
         mapa.put("Login", """
                 LOGIN
 
-                A tela de login e a porta de entrada do sistema.
+                A tela de login é a porta de entrada do sistema.
 
                 Como entrar:
                 1. Digite seu e-mail no campo E-mail.
@@ -230,38 +230,38 @@ public class TelaAjuda {
                 Se o login falhar:
                 - Confira se o e-mail foi digitado corretamente.
                 - Confira a senha.
-                - Verifique se o usuario esta ativo no banco.
-                - Se aparecer erro de conexao, confira as variaveis DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASSWORD.
+                - Verifique se o usuário está ativo no banco.
+                - Se aparecer erro de conexão, confira as variáveis DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASSWORD.
 
                 Perfis:
-                - ADMIN: acessa todos os cadastros, inclusive usuarios.
-                - RESPONSAVEL: opera parceiros e contratos.
-                - VISUALIZADOR: consulta informacoes, mas nao edita cadastros.
+                - ADMIN: acessa todos os cadastros, inclusive usuários.
+                - RESPONSÁVEL: opera parceiros e contratos.
+                - VISUALIZADOR: consulta informações, mas não edita cadastros.
                 """);
 
         mapa.put("Tela principal e dashboard", """
                 TELA PRINCIPAL E DASHBOARD
 
-                A tela principal aparece depois do login e resume a situacao do sistema.
+                A tela principal aparece depois do login e resume a situação do sistema.
 
                 Indicadores:
-                - Parceiros ativos: total de parceiros com ativo = TRUE.
+                - Parceiros ativos: total de parceiros com ativo.
                 - Contratos cadastrados: total geral de contratos.
                 - Contratos ativos: contratos com status ATIVO.
                 - Contratos vencidos: contratos ATIVO com data fim anterior a hoje.
-                - A vencer em 30 dias: contratos ATIVO que vencem de hoje ate os proximos 30 dias.
+                - A vencer em 30 dias: contratos ATIVO que vencem de hoje até os próximos 30 dias.
 
                 Cards centrais:
-                - Contratos por tipo: mostra totais de SERVICO, FORNECIMENTO, MISTO, LOCACAO e CONSULTORIA.
-                - Contratos por status: mostra totais de ATIVO, CONCLUIDO, CANCELADO e SUSPENSO.
-                - Vencimentos criticos: lista contratos vencidos ou perto do vencimento, ordenados pela data fim.
+                - Contratos por tipo: mostra totais de SERVIÇO, FORNECIMENTO, MISTO, LOCAÇÃO e CONSULTORIA.
+                - Contratos por status: mostra totais de ATIVO, CONCLUÍDO, CANCELADO e SUSPENSO.
+                - Vencimentos críticos: lista contratos vencidos ou perto do vencimento, ordenados pela data fim.
 
-                Acoes rapidas:
-                - Usuarios: abre gestao de usuarios. Apenas ADMIN pode acessar.
+                Ações rápidas:
+                - Usuários: abre gestão de usuários. Apenas ADMIN pode acessar.
                 - Parceiros: abre cadastro de parceiros.
                 - Contratos: abre cadastro de contratos.
 
-                O botao Sair encerra a sessao e volta ao login.
+                O botão Sair encerra a sessão e volta ao login.
                 """);
 
         mapa.put("Cadastro de parceiros", """
@@ -271,14 +271,14 @@ public class TelaAjuda {
 
                 Como cadastrar:
                 1. Na tela principal, clique em Parceiros.
-                2. Preencha Razao Social / Nome.
-                3. Preencha CNPJ ou CPF somente com numeros.
-                4. Se for CNPJ com 14 digitos, o sistema tenta consultar dados automaticamente.
-                5. Revise endereco, cidade, UF, CEP, telefone e e-mail.
+                2. Preencha Razão Social / Nome.
+                3. Preencha CNPJ ou CPF somente com números.
+                4. Se for CNPJ com 14 dígitos, o sistema tenta consultar dados automaticamente.
+                5. Revise endereço, cidade, UF, CEP, telefone e e-mail.
                 6. Clique em Salvar.
 
-                Consulta automatica de CNPJ:
-                - Acontece quando o campo CNPJ/CPF perde o foco e contem 14 digitos.
+                Consulta automática de CNPJ:
+                - Acontece quando o campo CNPJ/CPF perde o foco e contém 14 dígitos.
                 - O sistema preenche apenas campos vazios.
                 - Se a consulta falhar, preencha manualmente.
 
@@ -290,12 +290,12 @@ public class TelaAjuda {
                 Como excluir:
                 1. Selecione o parceiro na tabela.
                 2. Clique em Excluir.
-                3. Confirme a operacao.
+                3. Confirme a operação.
 
                 Importante:
-                - A exclusao e logica: o parceiro fica com ativo = FALSE.
-                - Contratos vinculados nao sao excluidos.
-                - Documento duplicado nao e permitido para parceiro ativo.
+                - A exclusão é lógica: o parceiro fica com ativo = FALSE.
+                - Contratos vinculados não são excluídos.
+                - Documento duplicado não é permitido para parceiro ativo.
                 """);
 
         mapa.put("Cadastro de contratos", """
@@ -305,139 +305,139 @@ public class TelaAjuda {
 
                 Como cadastrar:
                 1. Na tela principal, clique em Contratos.
-                2. Informe o numero do contrato.
+                2. Informe o número do contrato.
                 3. Selecione o parceiro.
                 4. Preencha o objeto do contrato.
-                5. Informe descricao, tipo, valor, multa, forma de pagamento, datas, status e observacoes.
+                5. Informe descrição, tipo, valor, multa, forma de pagamento, datas, status e observações.
                 6. Clique em Salvar.
 
                 Campos principais:
-                - Numero do contrato: identificacao interna ou oficial.
+                - Número do contrato: identificação interna ou oficial.
                 - Parceiro: empresa/pessoa vinculada.
                 - Objeto: resumo do que o contrato trata.
-                - Descricao: detalhes adicionais.
-                - Tipo: SERVICO, FORNECIMENTO, MISTO, LOCACAO ou CONSULTORIA.
+                - Descrição: detalhes adicionais.
+                - Tipo: SERVIÇO, FORNECIMENTO, MISTO, LOCAÇÃO ou CONSULTORIA.
                 - Valor: valor global do contrato.
                 - Multa: valor de multa, se houver.
                 - Forma de pagamento: A_VISTA, PARCELADO, MENSAL ou RECORRENTE.
-                - Data inicio e Data fim: use dd/MM/yyyy.
-                - Status: ATIVO, CONCLUIDO, CANCELADO ou SUSPENSO.
+                - Data início e Data fim: use dd/MM/yyyy.
+                - Status: ATIVO, CONCLUÍDO, CANCELADO ou SUSPENSO.
 
                 Regras:
-                - Numero, parceiro, objeto, tipo, forma de pagamento e status sao obrigatorios.
-                - Data fim nao pode ser anterior a data inicio.
-                - Valores devem ser numericos. Use ponto ou virgula para casas decimais.
+                - Número, parceiro, objeto, tipo, forma de pagamento e status são obrigatórios.
+                - Data fim não pode ser anterior a data início.
+                - Valores devem ser numéricos. Use ponto ou vírgula para casas decimais.
 
                 Como editar:
                 1. Selecione o contrato na tabela.
-                2. Os dados serao carregados no formulario.
-                3. Altere o necessario.
+                2. Os dados serão carregados no formulário.
+                3. Altere o necessário.
                 4. Clique em Salvar.
 
                 Como excluir:
                 1. Selecione o contrato.
                 2. Clique em Excluir.
-                3. Confirme. As clausulas vinculadas tambem serao removidas.
+                3. Confirme. As cláusulas vinculadas também serão removidas.
                 """);
 
-        mapa.put("Clausulas do contrato", """
-                CLAUSULAS DO CONTRATO
+        mapa.put("Cláusulas do contrato", """
+                CLÁUSULAS DO CONTRATO
 
-                O painel de clausulas fica dentro da tela de Contratos.
+                O painel de cláusulas fica dentro da tela de Contratos.
 
                 Como usar:
                 1. Cadastre ou selecione um contrato.
-                2. O painel Clausulas do Contrato sera habilitado.
-                3. Informe o numero da clausula.
-                4. Informe a descricao/texto da clausula.
-                5. Clique em Salvar Clausula.
+                2. O painel Cláusulas do Contrato será habilitado.
+                3. Informe o número da cláusula.
+                4. Informe a descrição/texto da cláusula.
+                5. Clique em Salvar Cláusula.
 
                 Regras:
-                - E necessario selecionar um contrato antes.
-                - O numero da clausula deve ser inteiro e maior que zero.
-                - Nao pode haver duas clausulas com o mesmo numero no mesmo contrato.
-                - O sistema sugere o proximo numero disponivel.
+                - É necessário selecionar um contrato antes.
+                - O número da cláusula deve ser inteiro e maior que zero.
+                - Não pode haver duas cláusulas com o mesmo número no mesmo contrato.
+                - O sistema sugere o próximo número disponível.
 
                 Como editar:
-                1. Selecione uma clausula na mini-tabela.
-                2. Altere numero ou descricao.
-                3. Clique em Salvar Clausula.
+                1. Selecione uma cláusula na mini-tabela.
+                2. Altere número ou descrição.
+                3. Clique em Salvar Cláusula.
 
                 Como excluir:
-                1. Selecione a clausula.
-                2. Clique em Excluir Clausula.
-                3. Confirme a operacao.
+                1. Selecione a cláusula.
+                2. Clique em Excluir Cláusula.
+                3. Confirme a operação.
                 """);
 
-        mapa.put("Gestao de usuarios", """
-                GESTAO DE USUARIOS
+        mapa.put("Gestão de usuários", """
+                GESTÃO DE USUÁRIOS
 
-                Esta tela e restrita a usuarios ADMIN.
+                Esta tela é restrita a usuários ADMIN.
 
-                Como cadastrar usuario:
-                1. Clique em Usuarios na tela principal.
+                Como cadastrar usuário:
+                1. Clique em Usuários na tela principal.
                 2. Informe nome, sobrenome e e-mail.
-                3. Informe uma senha com no minimo 6 caracteres.
-                4. Selecione o tipo de usuario.
+                3. Informe uma senha com no mínimo 6 caracteres.
+                4. Selecione o tipo de usuário.
                 5. Clique em Salvar.
 
                 Como editar:
-                1. Selecione o usuario na tabela.
+                1. Selecione o usuário na tabela.
                 2. Altere nome, sobrenome, e-mail ou perfil.
                 3. Se quiser manter a senha atual, deixe o campo senha vazio.
                 4. Se quiser trocar a senha, digite uma nova senha.
                 5. Clique em Salvar.
 
                 Como excluir:
-                1. Selecione o usuario.
+                1. Selecione o usuário.
                 2. Clique em Excluir.
-                3. Confirme a operacao.
+                3. Confirme a operação.
 
                 Regras:
-                - O ADMIN nao pode excluir seu proprio usuario.
-                - E-mail duplicado nao e permitido.
+                - O ADMIN não pode excluir seu próprio usuário.
+                - E-mail duplicado não é permitido.
                 - Senhas ficam armazenadas como hash SHA-256.
                 """);
 
         mapa.put("Pesquisa e tabelas", """
                 PESQUISA E TABELAS
 
-                As telas de parceiros, contratos e usuarios possuem campo de pesquisa acima da tabela.
+                As telas de parceiros, contratos e usuários possuem campo de pesquisa acima da tabela.
 
                 Parceiros:
-                - Se o termo contem apenas numeros, pesquisa por CNPJ/CPF.
-                - Caso contrario, pesquisa por razao social/nome.
+                - Se o termo contém apenas números, pesquisa por CNPJ/CPF.
+                - Caso contrário, pesquisa por razão social/nome.
 
                 Contratos:
-                - Pesquisa por numero do contrato, objeto ou nome do parceiro.
+                - Pesquisa por número do contrato, objeto ou nome do parceiro.
 
-                Usuarios:
+                Usuários:
                 - Pesquisa por nome.
 
                 Dicas:
                 - Pressione Enter no campo de pesquisa para pesquisar.
                 - Clique em Listar Todos para limpar o filtro.
-                - Clique em uma linha da tabela para carregar os dados no formulario.
+                - Clique em uma linha da tabela para carregar os dados no formulário.
                 """);
 
         mapa.put("Alertas de vencimento", """
                 ALERTAS DE VENCIMENTO
 
-                Ao entrar na tela principal, o sistema verifica contratos vencidos ou proximos do vencimento.
+                Ao entrar na tela principal, o sistema verifica contratos vencidos ou próximos do vencimento.
 
                 Entram no alerta:
                 - Contratos com status ATIVO.
                 - Contratos com data fim preenchida.
-                - Contratos vencidos ou com vencimento nos proximos 30 dias.
+                - Contratos vencidos ou com vencimento nos próximos 30 dias.
 
-                Definicoes:
+                Definições:
                 - Vencido: data fim menor que a data atual.
-                - Proximo do vencimento: data fim entre hoje e os proximos 30 dias.
+                - Próximo do vencimento: data fim entre hoje e os próximos 30 dias.
 
-                O mesmo criterio aparece no dashboard:
+                O mesmo critério aparece no dashboard:
                 - Contratos vencidos.
                 - A vencer em 30 dias.
-                - Vencimentos criticos.
+                - Vencimentos críticos.
                 """);
 
         mapa.put("Perfis de acesso", """
@@ -446,58 +446,58 @@ public class TelaAjuda {
                 ADMIN:
                 - Acessa dashboard.
                 - Gerencia parceiros.
-                - Gerencia contratos e clausulas.
-                - Gerencia usuarios.
+                - Gerencia contratos e cláusulas.
+                - Gerencia usuários.
 
-                RESPONSAVEL:
+                RESPONSÁVEL:
                 - Acessa dashboard.
                 - Gerencia parceiros.
-                - Gerencia contratos e clausulas.
-                - Nao acessa gestao de usuarios.
+                - Gerencia contratos e cláusulas.
+                - Não acessa gestão de usuários.
 
                 VISUALIZADOR:
                 - Acessa dashboard.
                 - Consulta parceiros e contratos.
-                - Formularios de edicao ficam bloqueados.
-                - Nao acessa gestao de usuarios.
+                - Formulários de edição ficam bloqueados.
+                - Não acessa gestão de usuários.
                 """);
 
-        mapa.put("Boas praticas", """
-                BOAS PRATICAS DE OPERACAO
+        mapa.put("Boas práticas", """
+                BOAS PRÁTICAS DE OPERAÇÃO
 
                 - Cadastre o parceiro antes de cadastrar o contrato.
-                - Use numeros de contrato padronizados, como 2026/001 ou CT-0001.
-                - Mantenha datas de inicio e fim preenchidas corretamente.
+                - Use números de contrato padronizados, como 2026/001 ou CT-0001.
+                - Mantenha datas de início e fim preenchidas corretamente.
                 - Use status ATIVO apenas para contratos vigentes.
-                - Ao finalizar um contrato, altere o status para CONCLUIDO.
+                - Ao finalizar um contrato, altere o status para CONCLUÍDO.
                 - Use CANCELADO para contratos cancelados e SUSPENSO para contratos temporariamente parados.
-                - Revise os vencimentos criticos no dashboard periodicamente.
+                - Revise os vencimentos críticos no dashboard periodicamente.
                 - Evite excluir registros sem conferir se foram selecionados corretamente.
                 """);
 
         mapa.put("Problemas comuns", """
                 PROBLEMAS COMUNS
 
-                Nao consigo entrar:
+                Não consigo entrar:
                 - Verifique e-mail e senha.
-                - Confirme se o banco esta ativo.
-                - Confirme o arquivo .env ou variaveis de ambiente.
+                - Confirme se o banco está ativo.
+                - Confirme o arquivo .env ou variáveis de ambiente.
 
-                Nao aparece parceiro no contrato:
-                - Verifique se o parceiro esta cadastrado e ativo.
+                Não aparece parceiro no contrato:
+                - Verifique se o parceiro está cadastrado e ativo.
 
-                CNPJ nao consultou:
-                - Use somente numeros.
-                - Confira se tem 14 digitos.
-                - Verifique internet e limite da API publica.
+                CNPJ não consultou:
+                - Use somente números.
+                - Confira se tem 14 dígitos.
+                - Verifique internet e limite da API pública.
 
-                Contrato nao salva:
-                - Confira campos obrigatorios.
+                Contrato não salva:
+                - Confira campos obrigatórios.
                 - Confira formato das datas: dd/MM/yyyy.
-                - Confira se data fim nao e anterior a data inicio.
-                - Confira se valores sao numericos.
+                - Confira se data fim não é anterior a data início.
+                - Confira se valores são numéricos.
 
-                Nao consigo acessar Usuarios:
+                Não consigo acessar Usuários:
                 - Apenas ADMIN pode abrir essa tela.
                 """);
 

@@ -250,7 +250,7 @@ public class TelaPrincipal {
     }
 
     private VBox criarPainelVencimentos(List<Contrato> contratos) {
-        Label lblTitulo = new Label("Vencimentos criticos");
+        Label lblTitulo = new Label("Vencimentos críticos");
         lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
         lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
 

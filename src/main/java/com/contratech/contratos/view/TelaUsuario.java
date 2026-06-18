@@ -113,7 +113,7 @@ public class TelaUsuario {
     });
 
     Button btnAjuda = AjudaUtil.criarBotaoAjuda(stage, usuarioLogado,
-            "Gestao de usuarios",
+            "Gestão de usuários",
             () -> new TelaUsuario(stage, usuarioLogado).exibir());
 
     Region espaco = new Region();
@@ -153,7 +153,7 @@ public class TelaUsuario {
 
     Scene scene = new Scene(root, 900, 550);
     AjudaUtil.registrarAtalhoF1(scene, stage, usuarioLogado,
-            "Gestao de usuarios",
+            "Gestão de usuários",
             () -> new TelaUsuario(stage, usuarioLogado).exibir());
 
     stage.setTitle("Usuários - CadastroContrato");

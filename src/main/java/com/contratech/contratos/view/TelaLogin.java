@@ -40,8 +40,8 @@ public class TelaLogin {
         ImageView logo = new ImageView(new Image(
                 getClass().getResource("/images/contratech-logo.png").toExternalForm()
         ));
-        logo.setViewport(new Rectangle2D(45, 345, 910, 285));
-        logo.setFitWidth(310);
+        logo.setViewport(new Rectangle2D(50, 345, 1000, 285));
+        logo.setFitWidth(380);
         logo.setPreserveRatio(true);
         logo.setSmooth(true);
 

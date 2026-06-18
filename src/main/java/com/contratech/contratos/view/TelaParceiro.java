@@ -254,6 +254,9 @@ public class TelaParceiro {
         btnLimpar.setOnAction(e -> limparFormulario());
 
         HBox botoesAcao = new HBox(10, btnSalvar, btnExcluir);
+        botoesAcao.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btnSalvar, Priority.ALWAYS);
+        HBox.setHgrow(btnExcluir, Priority.ALWAYS);
 
         // === Monta o formulário ===
         VBox form = new VBox(8);
