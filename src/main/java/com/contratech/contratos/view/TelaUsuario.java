@@ -129,7 +129,10 @@ public class TelaUsuario {
     );
 
     barraSuperior.setAlignment(Pos.CENTER_LEFT);
-    barraSuperior.setPadding(new Insets(18));
+    barraSuperior.setPadding(new Insets(18, 20, 18, 20));
+    barraSuperior.setPrefHeight(78);
+    barraSuperior.setMinHeight(78);
+    barraSuperior.setMaxHeight(78);
     barraSuperior.setStyle(
             "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10,0,0,3);"

@@ -96,8 +96,11 @@ public class TelaPrincipal {
         HBox.setHgrow(espaco, Priority.ALWAYS);
 
         HBox header = new HBox(15, lblBemVindo, lblPerfil, espaco, btnAjuda, btnLogout);
-        header.setPadding(new Insets(20));
+        header.setPadding(new Insets(18, 20, 18, 20));
         header.setAlignment(Pos.CENTER_LEFT);
+        header.setPrefHeight(78);
+        header.setMinHeight(78);
+        header.setMaxHeight(78);
         header.setStyle(
                 "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);"
                 + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10,0,0,3);"

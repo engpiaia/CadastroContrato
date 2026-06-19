@@ -161,7 +161,10 @@ public class TelaContrato {
 
     HBox header = new HBox(12, lblTitulo, lblPerfil, espacador, btnAjuda, btnMenu, btnLogout);
     header.setAlignment(Pos.CENTER_LEFT);
-    header.setPadding(new Insets(18));
+    header.setPadding(new Insets(18, 20, 18, 20));
+    header.setPrefHeight(78);
+    header.setMinHeight(78);
+    header.setMaxHeight(78);
     header.setStyle(
             "-fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10,0,0,3);"
