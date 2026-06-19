@@ -60,6 +60,7 @@ public class TelaContrato {
     private final ContratoDAO contratoDAO = new ContratoDAO();
     private final ParceiroDAO parceiroDAO = new ParceiroDAO();
     private final ClausulaDAO clausulaDAO = new ClausulaDAO();
+    private final String filtroInicial;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -77,6 +78,14 @@ public class TelaContrato {
     private ComboBox<String> cbStatus;
     private TextArea txtObservacoes;
     private TextField txtPesquisa;
+    private Button btnFiltroTodos;
+    private Button btnFiltroAtivos;
+    private Button btnFiltroConcluidos;
+    private Button btnFiltroSuspensos;
+    private Button btnFiltroCancelados;
+    private Button btnFiltroVencidos;
+    private Button btnFiltroAVencer;
+    private String filtroAtual = "TODOS";
 
     // ==================== TABELA DE CONTRATOS ====================
     private TableView<Contrato> tabelaContratos;
@@ -94,8 +103,13 @@ public class TelaContrato {
     private Clausula clausulaSelecionada = null;
 
     public TelaContrato(Stage stage, Usuario usuarioLogado) {
+        this(stage, usuarioLogado, null);
+    }
+
+    public TelaContrato(Stage stage, Usuario usuarioLogado, String filtroInicial) {
         this.stage = stage;
         this.usuarioLogado = usuarioLogado;
+        this.filtroInicial = filtroInicial;
     }
 
     public void exibir() {
@@ -196,14 +210,32 @@ public class TelaContrato {
     stage.setMaximized(true);
     stage.show();
 
-    atualizarTabelaContratos();
-    atualizarEstadoClausulas();
+        if (filtroInicial == null) {
+            atualizarTabelaContratos();
+        } else {
+            aplicarFiltroInicial();
+        }
+        atualizarEstadoClausulas();
 }
 
+    private void aplicarFiltroInicial() {
+        if (filtroInicial == null) {
+            atualizarTabelaContratos();
+            return;
+        }
 
-    // ===================================================================
-    // FORMULÁRIO DO CONTRATO
-    // ===================================================================
+        switch (filtroInicial) {
+            case "ATIVO" -> listaContratos.setAll(contratoDAO.listarPorStatus("ATIVO"));
+            case "CONCLUIDO" -> listaContratos.setAll(contratoDAO.listarPorStatus("CONCLUIDO"));
+            case "CANCELADO" -> listaContratos.setAll(contratoDAO.listarPorStatus("CANCELADO"));
+            case "SUSPENSO" -> listaContratos.setAll(contratoDAO.listarPorStatus("SUSPENSO"));
+            case "VENCIDOS" -> listaContratos.setAll(contratoDAO.listarContratosVencidos());
+            case "AVENCER" -> listaContratos.setAll(contratoDAO.listarContratosAVencer());
+            default -> atualizarTabelaContratos();
+        }
+
+        txtPesquisa.clear();
+    }
 
     private VBox criarFormularioContrato() {
         Label lblForm = new Label("Dados do Contrato");
@@ -473,15 +505,13 @@ public class TelaContrato {
         btnPesquisar.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
         btnPesquisar.setOnAction(e -> pesquisarContratos());
 
-        Button btnListarTodos = new Button("Listar Todos");
-        btnListarTodos.setStyle("-fx-cursor: hand;");
-        btnListarTodos.setOnAction(e -> atualizarTabelaContratos());
-
         txtPesquisa.setOnAction(e -> pesquisarContratos());
 
-        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar, btnListarTodos);
+        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar);
         barraPesquisa.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(txtPesquisa, Priority.ALWAYS);
+
+        HBox barrasFiltro = criarPainelFiltrosContratos();
 
         tabelaContratos = new TableView<>();
         listaContratos = FXCollections.observableArrayList();
@@ -501,7 +531,7 @@ public class TelaContrato {
 
         VBox.setVgrow(tabelaContratos, Priority.ALWAYS);
 
-        VBox painel = new VBox(10, barraPesquisa, tabelaContratos);
+        VBox painel = new VBox(10, barraPesquisa, barrasFiltro, tabelaContratos);
         painel.setPadding(new Insets(15));
         painel.setStyle("-fx-background-color: white; -fx-background-radius: 8;"
                 + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
@@ -784,8 +814,81 @@ public class TelaContrato {
     }
 
     private void atualizarTabelaContratos() {
-        listaContratos.setAll(contratoDAO.listarTodos());
+        aplicarFiltroContratos("TODOS");
+    }
+
+    private HBox criarPainelFiltrosContratos() {
+        btnFiltroTodos = criarBotaoFiltro("Listar todos", "TODOS");
+        btnFiltroAtivos = criarBotaoFiltro("Ativos", "ATIVO");
+        btnFiltroConcluidos = criarBotaoFiltro("Concluídos", "CONCLUIDO");
+        btnFiltroSuspensos = criarBotaoFiltro("Suspensos", "SUSPENSO");
+        btnFiltroCancelados = criarBotaoFiltro("Cancelados", "CANCELADO");
+        btnFiltroVencidos = criarBotaoFiltro("Vencidos", "VENCIDOS");
+        btnFiltroAVencer = criarBotaoFiltro("A vencer", "AVENCER");
+
+        HBox filtros = new HBox(8,
+                btnFiltroTodos,
+                btnFiltroAtivos,
+                btnFiltroConcluidos,
+                btnFiltroSuspensos,
+                btnFiltroCancelados,
+                btnFiltroVencidos,
+                btnFiltroAVencer
+        );
+        filtros.setAlignment(Pos.CENTER_LEFT);
+        filtros.setPadding(new Insets(4, 0, 0, 0));
+        return filtros;
+    }
+
+    private Button criarBotaoFiltro(String texto, String filtro) {
+        Button botao = new Button(texto);
+        botao.setPrefHeight(32);
+        botao.setStyle("-fx-background-color: #ecf0f1; -fx-text-fill: #34495e; -fx-cursor: hand; -fx-background-radius: 6;");
+        botao.setOnAction(e -> aplicarFiltroContratos(filtro));
+        return botao;
+    }
+
+    private void aplicarFiltroContratos(String filtro) {
+        filtroAtual = filtro;
+        switch (filtro) {
+            case "ATIVO" -> listaContratos.setAll(contratoDAO.listarPorStatus("ATIVO"));
+            case "CONCLUIDO" -> listaContratos.setAll(contratoDAO.listarPorStatus("CONCLUIDO"));
+            case "CANCELADO" -> listaContratos.setAll(contratoDAO.listarPorStatus("CANCELADO"));
+            case "SUSPENSO" -> listaContratos.setAll(contratoDAO.listarPorStatus("SUSPENSO"));
+            case "VENCIDOS" -> listaContratos.setAll(contratoDAO.listarContratosVencidos());
+            case "AVENCER" -> listaContratos.setAll(contratoDAO.listarContratosAVencer());
+            default -> listaContratos.setAll(contratoDAO.listarTodos());
+        }
         txtPesquisa.clear();
+        atualizarEstiloFiltros();
+    }
+
+    private void atualizarEstiloFiltros() {
+        Button[] botoes = {
+                btnFiltroTodos,
+                btnFiltroAtivos,
+                btnFiltroConcluidos,
+                btnFiltroSuspensos,
+                btnFiltroCancelados,
+                btnFiltroVencidos,
+                btnFiltroAVencer
+        };
+        for (Button botao : botoes) {
+            if (botao == null) {
+                continue;
+            }
+            if (botao.getText().equalsIgnoreCase("Listar todos") && "TODOS".equals(filtroAtual)
+                    || botao.getText().equalsIgnoreCase("Ativos") && "ATIVO".equals(filtroAtual)
+                    || botao.getText().equalsIgnoreCase("Concluídos") && "CONCLUIDO".equals(filtroAtual)
+                    || botao.getText().equalsIgnoreCase("Suspensos") && "SUSPENSO".equals(filtroAtual)
+                    || botao.getText().equalsIgnoreCase("Cancelados") && "CANCELADO".equals(filtroAtual)
+                    || botao.getText().equalsIgnoreCase("Vencidos") && "VENCIDOS".equals(filtroAtual)
+                    || botao.getText().equalsIgnoreCase("A vencer") && "AVENCER".equals(filtroAtual)) {
+                botao.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 6;");
+            } else {
+                botao.setStyle("-fx-background-color: #ecf0f1; -fx-text-fill: #34495e; -fx-cursor: hand; -fx-background-radius: 6;");
+            }
+        }
     }
 
     // ===================================================================

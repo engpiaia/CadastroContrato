@@ -243,15 +243,44 @@ public class ContratoDAO {
         return lista;
     }
 
-    // ==================== LISTAR VENCIDOS / PRÓXIMOS DO VENCIMENTO ====================
-    public List<Contrato> listarVencidos() {
+    // ==================== LISTAR POR STATUS ====================
+    public List<Contrato> listarPorStatus(String status) {
+        String sql = """
+            SELECT c.*, p.razao_social AS parceiro_nome
+            FROM contratos c
+            INNER JOIN parceiros p ON p.id = c.parceiro_id
+            WHERE c.status = ?
+            ORDER BY c.id DESC
+            """;
+
+        List<Contrato> lista = new ArrayList<>();
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearContrato(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar contratos por status: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+    public List<Contrato> listarContratosVencidos() {
         String sql = """
             SELECT c.*, p.razao_social AS parceiro_nome
             FROM contratos c
             INNER JOIN parceiros p ON p.id = c.parceiro_id
             WHERE c.status = 'ATIVO'
               AND c.data_fim IS NOT NULL
-              AND c.data_fim <= CURRENT_DATE + INTERVAL '30 days'
+              AND c.data_fim < CURRENT_DATE
             ORDER BY c.data_fim ASC
             """;
 
@@ -267,6 +296,35 @@ public class ContratoDAO {
 
         } catch (SQLException e) {
             System.err.println("Erro ao listar contratos vencidos: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+    public List<Contrato> listarContratosAVencer() {
+        String sql = """
+            SELECT c.*, p.razao_social AS parceiro_nome
+            FROM contratos c
+            INNER JOIN parceiros p ON p.id = c.parceiro_id
+            WHERE c.status = 'ATIVO'
+              AND c.data_fim IS NOT NULL
+              AND c.data_fim >= CURRENT_DATE
+              AND c.data_fim <= CURRENT_DATE + INTERVAL '30 days'
+            ORDER BY c.data_fim ASC
+            """;
+
+        List<Contrato> lista = new ArrayList<>();
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(mapearContrato(rs));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar contratos a vencer: " + e.getMessage());
         }
 
         return lista;

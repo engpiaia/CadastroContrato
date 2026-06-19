@@ -163,17 +163,17 @@ public class TelaPrincipal {
 
     private HBox criarIndicadores(DashboardResumo resumo) {
         HBox indicadores = new HBox(14,
-                criarIndicador("Parceiros ativos", resumo.getParceirosAtivos(), "#2c3e50"),
-                criarIndicador("Contratos cadastrados", resumo.getContratosCadastrados(), "#34495e"),
-                criarIndicador("Contratos ativos", resumo.getContratosAtivos(), "#2e7d32"),
-                criarIndicador("Contratos vencidos", resumo.getContratosVencidos(), "#c62828"),
-                criarIndicador("A vencer em 30 dias", resumo.getContratosAVencer(), "#ef6c00")
+                criarIndicador("Parceiros ativos", resumo.getParceirosAtivos(), "#2c3e50", e -> new TelaParceiro(stage, usuarioLogado).exibir()),
+                criarIndicador("Contratos cadastrados", resumo.getContratosCadastrados(), "#34495e", e -> new TelaContrato(stage, usuarioLogado, null).exibir()),
+                criarIndicador("Contratos ativos", resumo.getContratosAtivos(), "#2e7d32", e -> new TelaContrato(stage, usuarioLogado, "ATIVO").exibir()),
+                criarIndicador("Contratos vencidos", resumo.getContratosVencidos(), "#c62828", e -> new TelaContrato(stage, usuarioLogado, "VENCIDOS").exibir()),
+                criarIndicador("A vencer em 30 dias", resumo.getContratosAVencer(), "#ef6c00", e -> new TelaContrato(stage, usuarioLogado, "AVENCER").exibir())
         );
         indicadores.setAlignment(Pos.CENTER);
         return indicadores;
     }
 
-    private VBox criarIndicador(String titulo, int valor, String cor) {
+    private VBox criarIndicador(String titulo, int valor, String cor, javafx.event.EventHandler<javafx.scene.input.MouseEvent> acao) {
         Label lblValor = new Label(String.valueOf(valor));
         lblValor.setFont(Font.font("Segoe UI", FontWeight.BOLD, 30));
         lblValor.setStyle("-fx-text-fill: " + cor + ";");
@@ -195,6 +195,11 @@ public class TelaPrincipal {
                 + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);"
         );
         HBox.setHgrow(box, Priority.ALWAYS);
+        String baseStyle = box.getStyle() + "-fx-cursor: hand;";
+        box.setStyle(baseStyle);
+        box.setOnMouseClicked(acao);
+        box.setOnMouseEntered(e -> box.setStyle(baseStyle + "-fx-background-color: #f8fbff;"));
+        box.setOnMouseExited(e -> box.setStyle(baseStyle));
         return box;
     }
 
@@ -211,7 +216,14 @@ public class TelaPrincipal {
             vazio.setStyle("-fx-text-fill: #7f8c8d;");
             linhas.getChildren().add(vazio);
         } else {
-            dados.forEach((chave, total) -> linhas.getChildren().add(criarLinhaResumo(chave, total)));
+            dados.forEach((chave, total) -> {
+                if ("Contratos por status".equals(titulo) && ("ATIVO".equals(chave) || "CONCLUIDO".equals(chave)
+                        || "CANCELADO".equals(chave) || "SUSPENSO".equals(chave))) {
+                    linhas.getChildren().add(criarLinhaResumo(chave, total, e -> new TelaContrato(stage, usuarioLogado, chave).exibir()));
+                } else {
+                    linhas.getChildren().add(criarLinhaResumo(chave, total));
+                }
+            });
         }
 
         VBox painel = new VBox(12, lblTitulo, new Separator(), linhas);
@@ -246,6 +258,15 @@ public class TelaPrincipal {
 
         HBox linha = new HBox(10, lblTexto, espaco, lblTotal);
         linha.setAlignment(Pos.CENTER_LEFT);
+        return linha;
+    }
+
+    private HBox criarLinhaResumo(String texto, int total, javafx.event.EventHandler<javafx.scene.input.MouseEvent> acao) {
+        HBox linha = criarLinhaResumo(texto, total);
+        linha.setOnMouseClicked(acao);
+        linha.setStyle(linha.getStyle() + "-fx-cursor: hand;");
+        linha.setOnMouseEntered(e -> linha.setStyle(linha.getStyle() + "-fx-background-color: #f8fbff;"));
+        linha.setOnMouseExited(e -> linha.setStyle(linha.getStyle().replace("-fx-background-color: #f8fbff;", "")));
         return linha;
     }
 
@@ -354,7 +375,7 @@ public class TelaPrincipal {
         });
 
         btnParceiros.setOnAction(e -> new TelaParceiro(stage, usuarioLogado).exibir());
-        btnContratos.setOnAction(e -> new TelaContrato(stage, usuarioLogado).exibir());
+        btnContratos.setOnAction(e -> new TelaContrato(stage, usuarioLogado, null).exibir());
 
         if (usuarioLogado.getTipoUsuario() != Usuario.TipoUsuario.ADMIN) {
             btnUsuarios.setOpacity(0.5);
@@ -436,7 +457,7 @@ public class TelaPrincipal {
 
     private void verificarContratosVencidos() {
         ContratoDAO contratoDAO = new ContratoDAO();
-        List<Contrato> contratos = contratoDAO.listarVencidos();
+        List<Contrato> contratos = contratoDAO.listarContratosVencidos();
 
         if (contratos.isEmpty()) {
             return;
