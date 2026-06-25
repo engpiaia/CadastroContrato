@@ -110,6 +110,7 @@ public class TelaPrincipal {
 
         HBox indicadores = criarIndicadores(resumo);
         Label lblSecaoIndicadores = criarLabelSecao("Visao geral");
+        HBox prioridades = criarFaixasPrioridade(resumo);
 
         HBox painelCentral = new HBox(18,
                 criarPainelAgrupamento("Contratos por tipo", resumo.getContratosPorTipo()),
@@ -128,6 +129,7 @@ public class TelaPrincipal {
         VBox conteudo = new VBox(18,
                 lblSecaoIndicadores,
                 indicadores,
+                prioridades,
                 lblSecaoAnalise,
                 painelCentral,
                 lblSecaoAcoes,
@@ -317,6 +319,61 @@ public class TelaPrincipal {
                 + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12,0,0,3);"
         );
         return painel;
+    }
+
+    private HBox criarFaixasPrioridade(DashboardResumo resumo) {
+        HBox faixas = new HBox(14,
+                criarFaixaPrioridade(
+                        "Urgente",
+                        resumo.getContratosVencidos() + " contrato(s) vencido(s)",
+                        "Exige acao imediata para evitar impacto operacional.",
+                        "#fff1f2",
+                        "#be123c",
+                        e -> new TelaContrato(stage, usuarioLogado, "VENCIDOS").exibir()
+                ),
+                criarFaixaPrioridade(
+                        "Atencao",
+                        resumo.getContratosAVencer() + " contrato(s) a vencer em 30 dias",
+                        "Antecipe renovacoes e revisoes com a equipe responsavel.",
+                        "#fff7ed",
+                        "#c2410c",
+                        e -> new TelaContrato(stage, usuarioLogado, "AVENCER").exibir()
+                )
+        );
+        return faixas;
+    }
+
+    private VBox criarFaixaPrioridade(
+            String titulo,
+            String destaque,
+            String detalhe,
+            String fundo,
+            String corTexto,
+            javafx.event.EventHandler<javafx.scene.input.MouseEvent> acao
+    ) {
+        Label lblTitulo = new Label(titulo);
+        lblTitulo.setStyle("-fx-text-fill: " + corTexto + "; -fx-font-weight: bold; -fx-font-size: 12px;");
+
+        Label lblDestaque = new Label(destaque);
+        lblDestaque.setWrapText(true);
+        lblDestaque.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+        lblDestaque.setStyle("-fx-text-fill: #1f2937;");
+
+        Label lblDetalhe = new Label(detalhe);
+        lblDetalhe.setWrapText(true);
+        lblDetalhe.setStyle("-fx-text-fill: #6b7280;");
+
+        VBox box = new VBox(6, lblTitulo, lblDestaque, lblDetalhe);
+        box.setPadding(new Insets(16));
+        box.setMaxWidth(Double.MAX_VALUE);
+        box.setStyle("-fx-background-color: " + fundo + ";"
+                + "-fx-background-radius: 14;"
+                + "-fx-border-color: rgba(31,49,66,0.08);"
+                + "-fx-border-radius: 14;"
+                + "-fx-cursor: hand;");
+        HBox.setHgrow(box, Priority.ALWAYS);
+        box.setOnMouseClicked(acao);
+        return box;
     }
 
     private GridPane criarLinhaVencimento(Contrato contrato) {

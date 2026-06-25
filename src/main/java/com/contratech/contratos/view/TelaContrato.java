@@ -120,6 +120,9 @@ public class TelaContrato {
     lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
     lblTitulo.setStyle("-fx-text-fill: white;");
 
+    Label lblResumo = new Label("Organize cadastros, acompanhe vigencias e mantenha clausulas vinculadas ao contrato.");
+    lblResumo.setStyle("-fx-text-fill: rgba(255,255,255,0.82); -fx-font-size: 13px;");
+
     Label lblPerfil = new Label(usuarioLogado.getTipoUsuario().toString());
     lblPerfil.setStyle(
             "-fx-background-color: rgba(255,255,255,0.2);" +
@@ -160,7 +163,9 @@ public class TelaContrato {
     Region espacador = new Region();
     HBox.setHgrow(espacador, Priority.ALWAYS);
 
-    HBox header = new HBox(12, lblTitulo, lblPerfil, espacador, btnAjuda, btnMenu, btnLogout);
+    VBox blocoTitulo = new VBox(4, lblTitulo, lblResumo);
+
+    HBox header = new HBox(12, blocoTitulo, lblPerfil, espacador, btnAjuda, btnMenu, btnLogout);
     header.setAlignment(Pos.CENTER_LEFT);
     header.setPadding(new Insets(18));
     header.setStyle(
@@ -179,8 +184,8 @@ public class TelaContrato {
     // ===== CLÁUSULAS VISÍVEL (FIXO) =====
     painelClausulas = criarPainelClausulas();
 
-    VBox esquerda = new VBox(10, scrollForm, painelClausulas);
-    esquerda.setPrefWidth(380);
+    VBox esquerda = new VBox(14, scrollForm, painelClausulas);
+    esquerda.setPrefWidth(410);
     VBox.setVgrow(scrollForm, Priority.ALWAYS);
 
     if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.VISUALIZADOR) {
@@ -520,9 +525,13 @@ public class TelaContrato {
         btnPesquisar.setStyle(estiloBotaoPrimario());
         btnPesquisar.setOnAction(e -> pesquisarContratos());
 
+        Button btnListarTodos = new Button("Listar todos");
+        btnListarTodos.setStyle(estiloBotaoSecundario());
+        btnListarTodos.setOnAction(e -> atualizarTabelaContratos());
+
         txtPesquisa.setOnAction(e -> pesquisarContratos());
 
-        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar);
+        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar, btnListarTodos);
         barraPesquisa.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(txtPesquisa, Priority.ALWAYS);
 
@@ -547,7 +556,11 @@ public class TelaContrato {
 
         VBox.setVgrow(tabelaContratos, Priority.ALWAYS);
 
-        VBox painel = new VBox(10, barraPesquisa, barrasFiltro, tabelaContratos);
+        Label lblResumoTabela = new Label("Use filtros para destacar situacoes criticas e selecione uma linha para editar.");
+        lblResumoTabela.setWrapText(true);
+        lblResumoTabela.setStyle("-fx-text-fill: #6b7b8c; -fx-font-size: 11px;");
+
+        VBox painel = new VBox(10, barraPesquisa, lblResumoTabela, barrasFiltro, tabelaContratos);
         painel.setPadding(new Insets(15));
         painel.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
                 + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
