@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
@@ -85,17 +86,46 @@ public class TelaAjuda {
 
         TextField txtPesquisa = new TextField();
         txtPesquisa.setPromptText("Pesquisar na ajuda...");
+        txtPesquisa.setStyle(
+                "-fx-background-color: #f8fafc;"
+                + "-fx-border-color: #cbd5e1;"
+                + "-fx-border-radius: 10;"
+                + "-fx-background-radius: 10;"
+                + "-fx-padding: 10 12;"
+        );
 
         itensFiltrados = FXCollections.observableArrayList(topicos.keySet());
         listaTopicos = new ListView<>(itensFiltrados);
         listaTopicos.setPrefWidth(270);
         listaTopicos.setMinWidth(240);
+        listaTopicos.setStyle("-fx-background-radius: 12; -fx-control-inner-background: white;");
+        listaTopicos.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    setStyle("-fx-background-color: transparent;");
+                    return;
+                }
+
+                setText(item);
+                setStyle(isSelected()
+                        ? "-fx-background-color: #e8f4f7; -fx-text-fill: #1f3142; -fx-font-weight: bold;"
+                        : "-fx-background-color: transparent; -fx-text-fill: #2c3e50;");
+            }
+        });
 
         txtConteudo = new TextArea();
         txtConteudo.setEditable(false);
         txtConteudo.setWrapText(true);
         txtConteudo.setFont(Font.font("Segoe UI", 14));
-        txtConteudo.setStyle("-fx-control-inner-background: white; -fx-text-fill: #2c3e50;");
+        txtConteudo.setStyle("-fx-control-inner-background: white;"
+                + "-fx-text-fill: #2c3e50;"
+                + "-fx-background-radius: 12;"
+                + "-fx-border-color: #e2e8f0;"
+                + "-fx-border-radius: 12;");
 
         listaTopicos.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
             if (novo != null) {
@@ -105,13 +135,20 @@ public class TelaAjuda {
 
         txtPesquisa.textProperty().addListener((obs, antigo, novo) -> filtrarTopicos(novo));
 
+        Label lblAtalho = new Label("Dica rapida: pressione F1 para ajuda contextual.");
+        lblAtalho.setWrapText(true);
+        lblAtalho.setStyle("-fx-text-fill: #4ca1af; -fx-font-weight: bold;");
+
         VBox lateral = new VBox(10,
                 criarTituloSecao("Tópicos"),
                 txtPesquisa,
+                lblAtalho,
                 listaTopicos
         );
         lateral.setPadding(new Insets(16));
-        lateral.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
+        lateral.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
         VBox.setVgrow(listaTopicos, Priority.ALWAYS);
 
         VBox conteudo = new VBox(10,
@@ -120,7 +157,9 @@ public class TelaAjuda {
                 txtConteudo
         );
         conteudo.setPadding(new Insets(16));
-        conteudo.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
+        conteudo.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
         VBox.setVgrow(txtConteudo, Priority.ALWAYS);
 
         HBox centro = new HBox(16, lateral, conteudo);

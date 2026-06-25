@@ -37,6 +37,13 @@ public class TelaLogin {
     public void exibir() {
 
         // === TÍTULO ===
+        Label lblKicker = new Label("ACESSO AO SISTEMA");
+        lblKicker.setStyle(
+                "-fx-text-fill: #4ca1af;"
+                + "-fx-font-size: 11px;"
+                + "-fx-font-weight: bold;"
+        );
+
         ImageView logo = new ImageView(new Image(
                 getClass().getResource("/images/contratech-logo.png").toExternalForm()
         ));
@@ -52,14 +59,17 @@ public class TelaLogin {
         txtEmail = new TextField();
         txtEmail.setPromptText("E-mail");
         txtEmail.setPrefHeight(40);
+        estilizarCampoTexto(txtEmail);
 
         txtSenha = new PasswordField();
         txtSenha.setPromptText("Senha");
         txtSenha.setPrefHeight(40);
+        estilizarCampoTexto(txtSenha);
 
         txtSenhaVisivel = new TextField();
         txtSenhaVisivel.setPromptText("Senha");
         txtSenhaVisivel.setPrefHeight(40);
+        estilizarCampoTexto(txtSenhaVisivel);
         txtSenhaVisivel.managedProperty().bind(txtSenhaVisivel.visibleProperty());
         txtSenhaVisivel.visibleProperty().set(false);
         txtSenhaVisivel.textProperty().bindBidirectional(txtSenha.textProperty());
@@ -100,7 +110,10 @@ public class TelaLogin {
                 "-fx-background-color: linear-gradient(to right, #4ca1af, #2c3e50);" +
                 "-fx-text-fill: white;" +
                 "-fx-background-radius: 10;" +
-                "-fx-font-weight: bold;";
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 14px;" +
+                "-fx-padding: 12 16;" +
+                "-fx-cursor: hand;";
 
         btnEntrar.setStyle(estiloBotao);
 
@@ -110,34 +123,55 @@ public class TelaLogin {
         Button btnAjuda = new Button("Ajuda");
         btnAjuda.setPrefHeight(36);
         btnAjuda.setMaxWidth(Double.MAX_VALUE);
-        btnAjuda.setStyle("-fx-cursor: hand;");
+        btnAjuda.setStyle(
+                "-fx-cursor: hand;"
+                + "-fx-background-color: #f8fafc;"
+                + "-fx-text-fill: #2c3e50;"
+                + "-fx-border-color: #d7e0e8;"
+                + "-fx-border-radius: 10;"
+                + "-fx-background-radius: 10;"
+                + "-fx-font-weight: bold;"
+        );
         btnAjuda.setOnAction(e -> AjudaUtil.abrirAjuda(stage, null, "Login",
                 () -> new TelaLogin(stage).exibir()));
 
+        Label lblPerfis = new Label("Perfis: ADMIN, RESPONSAVEL e VISUALIZADOR");
+        lblPerfis.setWrapText(true);
+        lblPerfis.setStyle("-fx-text-fill: #5f6f82; -fx-font-size: 12px; -fx-font-weight: bold;");
+
+        Label lblApoio = new Label("Use seu e-mail e pressione Enter para agilizar o acesso.");
+        lblApoio.setWrapText(true);
+        lblApoio.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px;");
+
         // === FORMULÁRIO ===
-        VBox formulario = new VBox(15,
+        VBox formulario = new VBox(16,
+                lblKicker,
                 logo,
                 lblSubtitulo,
                 new Separator(),
                 txtEmail,
                 campoSenha,
                 btnEntrar,
-                btnAjuda
+                btnAjuda,
+                lblPerfis,
+                lblApoio
         );
 
         formulario.setAlignment(Pos.CENTER);
-        formulario.setPadding(new Insets(40));
-        formulario.setMaxWidth(420);
+        formulario.setPadding(new Insets(42));
+        formulario.setMaxWidth(440);
 
         formulario.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.92);" +
-                "-fx-background-radius: 15;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 25,0,0,10);"
+                "-fx-background-color: rgba(255,255,255,0.96);" +
+                "-fx-background-radius: 22;" +
+                "-fx-border-color: rgba(255,255,255,0.55);" +
+                "-fx-border-radius: 22;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 30,0,0,12);"
         );
 
         // === ROOT ===
         StackPane root = new StackPane();
-        root.setPadding(new Insets(40));
+        root.setPadding(new Insets(60));
 
         // ===== FUNDO BASE =====
         root.setStyle("-fx-background-color: #2c3e50;");
@@ -207,7 +241,7 @@ public class TelaLogin {
         t3.play();
 
         // === SCENE ===
-        Scene scene = new Scene(root, 500, 420);
+        Scene scene = new Scene(root, 560, 500);
         AjudaUtil.registrarAtalhoF1(scene, stage, null, "Login",
                 () -> new TelaLogin(stage).exibir());
 
@@ -272,5 +306,17 @@ public class TelaLogin {
         olho.setScaleX(0.9);
         olho.setScaleY(0.9);
         return olho;
+    }
+
+    private void estilizarCampoTexto(TextField campo) {
+        campo.setStyle(
+                "-fx-background-color: #f8fafc;"
+                + "-fx-border-color: #cbd5e1;"
+                + "-fx-border-radius: 10;"
+                + "-fx-background-radius: 10;"
+                + "-fx-padding: 12 14;"
+                + "-fx-prompt-text-fill: #94a3b8;"
+                + "-fx-text-fill: #243447;"
+        );
     }
 }

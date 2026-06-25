@@ -24,6 +24,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -245,17 +246,20 @@ public class TelaContrato {
         txtNumeroContrato = new TextField();
         txtNumeroContrato.setPromptText("Ex: 2026/001");
         txtNumeroContrato.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtNumeroContrato);
 
         // --- Parceiro ---
         cbParceiro = new ComboBox<>();
         cbParceiro.setPromptText("Selecione...");
         cbParceiro.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(cbParceiro);
         carregarParceiros();
 
         // --- Objeto ---
         txtObjeto = new TextField();
         txtObjeto.setPromptText("Objeto do contrato");
         txtObjeto.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtObjeto);
 
         // --- Descrição ---
         txtDescricao = new TextArea();
@@ -263,22 +267,26 @@ public class TelaContrato {
         txtDescricao.setPrefRowCount(3);
         txtDescricao.setWrapText(true);
         txtDescricao.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtDescricao);
 
         // --- Tipo ---
         cbTipo = new ComboBox<>(FXCollections.observableArrayList(
                 "SERVICO", "FORNECIMENTO", "MISTO", "LOCACAO", "CONSULTORIA"));
         cbTipo.setPromptText("Tipo");
         cbTipo.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(cbTipo);
 
         // --- Valor e Multa ---
         txtValor = new TextField();
         txtValor.setPromptText("0.00");
         txtValor.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtValor);
         aplicarMascaraMonetaria(txtValor);
 
         txtMulta = new TextField();
         txtMulta.setPromptText("0.00");
         txtMulta.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtMulta);
         aplicarMascaraMonetaria(txtMulta);
 
         HBox hbValores = new HBox(10);
@@ -293,15 +301,18 @@ public class TelaContrato {
                 "A_VISTA", "PARCELADO", "MENSAL", "RECORRENTE"));
         cbFormaPagamento.setPromptText("Forma de Pagamento");
         cbFormaPagamento.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(cbFormaPagamento);
 
         // --- Datas ---
         txtDataInicio = criarDatePicker();
         txtDataInicio.setPromptText("dd/MM/yyyy");
         txtDataInicio.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtDataInicio);
 
         txtDataFim = criarDatePicker();
         txtDataFim.setPromptText("dd/MM/yyyy");
         txtDataFim.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtDataFim);
 
         HBox hbDatas = new HBox(10);
         VBox vbInicio = new VBox(2, new Label("Data Início:"), txtDataInicio);
@@ -315,6 +326,7 @@ public class TelaContrato {
                 "ATIVO", "CONCLUIDO", "CANCELADO", "SUSPENSO"));
         cbStatus.setPromptText("Status");
         cbStatus.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(cbStatus);
 
         // --- Observações ---
         txtObservacoes = new TextArea();
@@ -322,20 +334,19 @@ public class TelaContrato {
         txtObservacoes.setPrefRowCount(2);
         txtObservacoes.setWrapText(true);
         txtObservacoes.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtObservacoes);
 
         // === Botões ===
         Button btnSalvar = new Button("Salvar");
         btnSalvar.setPrefWidth(130);
         btnSalvar.setMaxWidth(Double.MAX_VALUE);
-        btnSalvar.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
-                + "-fx-font-weight: bold; -fx-cursor: hand;");
+        btnSalvar.setStyle(estiloBotaoPrimario());
         btnSalvar.setOnAction(e -> salvarContrato());
 
         Button btnExcluir = new Button("Excluir");
         btnExcluir.setPrefWidth(130);
         btnExcluir.setMaxWidth(Double.MAX_VALUE);
-        btnExcluir.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; "
-                + "-fx-font-weight: bold; -fx-cursor: hand;");
+        btnExcluir.setStyle(estiloBotaoDestrutivo());
         btnExcluir.setOnAction(e -> excluirContrato());
 
         HBox botoesAcao = new HBox(10, btnSalvar, btnExcluir);
@@ -346,7 +357,7 @@ public class TelaContrato {
         Button btnLimpar = new Button("Novo Contrato");
         btnLimpar.setPrefWidth(270);
         btnLimpar.setMaxWidth(Double.MAX_VALUE);
-        btnLimpar.setStyle("-fx-cursor: hand;");
+        btnLimpar.setStyle(estiloBotaoSecundario());
         btnLimpar.setOnAction(e -> limparFormularioContrato());
 
         // === Monta ===
@@ -354,13 +365,15 @@ public class TelaContrato {
         form.setPadding(new Insets(15));
         form.setMinWidth(340);
         form.setMaxWidth(450);
-        form.setStyle("-fx-background-color: white; -fx-background-radius: 8;"
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
                 + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
 
         form.getChildren().addAll(
                 lblForm,
                 new Separator(),
                 criarTituloSecao("Dados do contrato"),
+                criarTextoApoio("Comece por numero, parceiro e objeto. Os demais campos refinam o contrato."),
                 new Label("Nº Contrato:"), txtNumeroContrato,
                 new Label("Parceiro:"), cbParceiro,
                 new Label("Objeto:"), txtObjeto,
@@ -393,6 +406,7 @@ public class TelaContrato {
         txtClausulaNumero = new TextField();
         txtClausulaNumero.setPromptText("Nº");
         txtClausulaNumero.setPrefWidth(60);
+        estilizarCampo(txtClausulaNumero);
 
         // Permite apenas números
         txtClausulaNumero.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -406,22 +420,21 @@ public class TelaContrato {
         txtClausulaDescricao.setPromptText("Texto da cláusula...");
         txtClausulaDescricao.setPrefRowCount(3);
         txtClausulaDescricao.setWrapText(true);
+        estilizarCampo(txtClausulaDescricao);
 
         // --- Botões das cláusulas ---
         Button btnAddClausula = new Button("Salvar Cláusula");
-        btnAddClausula.setStyle("-fx-background-color: #9C27B0; -fx-text-fill: white; "
-                + "-fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 11px;");
+        btnAddClausula.setStyle(estiloBotaoPrimario());
         btnAddClausula.setMaxWidth(Double.MAX_VALUE);
         btnAddClausula.setOnAction(e -> salvarClausula());
 
         Button btnExcClausula = new Button("Excluir Cláusula");
-        btnExcClausula.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; "
-                + "-fx-cursor: hand; -fx-font-size: 11px;");
+        btnExcClausula.setStyle(estiloBotaoDestrutivo());
         btnExcClausula.setMaxWidth(Double.MAX_VALUE);
         btnExcClausula.setOnAction(e -> excluirClausula());
 
         Button btnLimparClausula = new Button("Limpar");
-        btnLimparClausula.setStyle("-fx-cursor: hand; -fx-font-size: 11px;");
+        btnLimparClausula.setStyle(estiloBotaoSecundario());
         btnLimparClausula.setMaxWidth(Double.MAX_VALUE);
         btnLimparClausula.setOnAction(e -> limparFormularioClausula());
 
@@ -432,6 +445,7 @@ public class TelaContrato {
         listaClausulas = FXCollections.observableArrayList();
         tabelaClausulas.setItems(listaClausulas);
         tabelaClausulas.setPrefHeight(180);
+        tabelaClausulas.setStyle("-fx-background-color: transparent;");
         VBox.setVgrow(tabelaClausulas, Priority.ALWAYS);
         tabelaClausulas.setPlaceholder(new Label("Nenhuma cláusula cadastrada."));
 
@@ -448,8 +462,8 @@ public class TelaContrato {
         // === Monta o painel ===
         VBox painel = new VBox(8);
         painel.setPadding(new Insets(12));
-        painel.setStyle("-fx-background-color: #F3E5F5; -fx-background-radius: 8; "
-                + "-fx-border-color: #CE93D8; -fx-border-radius: 8; -fx-border-width: 1;"
+        painel.setStyle("-fx-background-color: white; -fx-background-radius: 14; "
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14; -fx-border-width: 1;"
                 + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.08), 12,0,0,3);");
         painel.setMaxWidth(Double.MAX_VALUE);
 
@@ -499,10 +513,11 @@ public class TelaContrato {
 
     private VBox criarPainelTabelaContratos() {
         txtPesquisa = new TextField();
+        estilizarCampo(txtPesquisa);
         txtPesquisa.setPromptText("Pesquisar por nº contrato, objeto ou parceiro...");
 
         Button btnPesquisar = new Button("Pesquisar");
-        btnPesquisar.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
+        btnPesquisar.setStyle(estiloBotaoPrimario());
         btnPesquisar.setOnAction(e -> pesquisarContratos());
 
         txtPesquisa.setOnAction(e -> pesquisarContratos());
@@ -517,6 +532,7 @@ public class TelaContrato {
         listaContratos = FXCollections.observableArrayList();
         tabelaContratos.setItems(listaContratos);
         tabelaContratos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tabelaContratos.setStyle("-fx-background-color: transparent;");
         tabelaContratos.setPlaceholder(criarEmptyStateContratos());
 
         configurarColunasContratos();
@@ -533,7 +549,8 @@ public class TelaContrato {
 
         VBox painel = new VBox(10, barraPesquisa, barrasFiltro, tabelaContratos);
         painel.setPadding(new Insets(15));
-        painel.setStyle("-fx-background-color: white; -fx-background-radius: 8;"
+        painel.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
                 + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
         painel.setMaxWidth(Double.MAX_VALUE);
 
@@ -843,7 +860,9 @@ public class TelaContrato {
     private Button criarBotaoFiltro(String texto, String filtro) {
         Button botao = new Button(texto);
         botao.setPrefHeight(32);
-        botao.setStyle("-fx-background-color: #ecf0f1; -fx-text-fill: #34495e; -fx-cursor: hand; -fx-background-radius: 6;");
+        botao.setStyle("-fx-background-color: #f8fafc; -fx-text-fill: #34495e; -fx-cursor: hand;"
+                + "-fx-background-radius: 999; -fx-border-color: #d7e0e8; -fx-border-radius: 999;"
+                + "-fx-font-weight: bold;");
         botao.setOnAction(e -> aplicarFiltroContratos(filtro));
         return botao;
     }
@@ -884,9 +903,13 @@ public class TelaContrato {
                     || botao.getText().equalsIgnoreCase("Cancelados") && "CANCELADO".equals(filtroAtual)
                     || botao.getText().equalsIgnoreCase("Vencidos") && "VENCIDOS".equals(filtroAtual)
                     || botao.getText().equalsIgnoreCase("A vencer") && "AVENCER".equals(filtroAtual)) {
-                botao.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 6;");
+                botao.setStyle("-fx-background-color: linear-gradient(to right, #4ca1af, #2c3e50);"
+                        + "-fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 999;"
+                        + "-fx-border-radius: 999; -fx-font-weight: bold;");
             } else {
-                botao.setStyle("-fx-background-color: #ecf0f1; -fx-text-fill: #34495e; -fx-cursor: hand; -fx-background-radius: 6;");
+                botao.setStyle("-fx-background-color: #f8fafc; -fx-text-fill: #34495e; -fx-cursor: hand;"
+                        + "-fx-background-radius: 999; -fx-border-color: #d7e0e8; -fx-border-radius: 999;"
+                        + "-fx-font-weight: bold;");
             }
         }
     }
@@ -1099,6 +1122,42 @@ public class TelaContrato {
     // ===================================================================
     // UTILITÁRIOS
     // ===================================================================
+
+    private void estilizarCampo(Control control) {
+        control.setStyle(
+                "-fx-background-color: #f8fafc;"
+                + "-fx-border-color: #cbd5e1;"
+                + "-fx-border-radius: 10;"
+                + "-fx-background-radius: 10;"
+                + "-fx-padding: 10 12;"
+                + "-fx-prompt-text-fill: #94a3b8;"
+        );
+    }
+
+    private Label criarTextoApoio(String texto) {
+        Label label = new Label(texto);
+        label.setWrapText(true);
+        label.setStyle("-fx-text-fill: #6b7b8c; -fx-font-size: 11px;");
+        return label;
+    }
+
+    private String estiloBotaoPrimario() {
+        return "-fx-background-color: linear-gradient(to right, #4ca1af, #2c3e50);"
+                + "-fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                + "-fx-background-radius: 10; -fx-padding: 10 14;";
+    }
+
+    private String estiloBotaoSecundario() {
+        return "-fx-background-color: #f8fafc; -fx-text-fill: #2c3e50;"
+                + "-fx-border-color: #d7e0e8; -fx-border-radius: 10;"
+                + "-fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;";
+    }
+
+    private String estiloBotaoDestrutivo() {
+        return "-fx-background-color: #fdecec; -fx-text-fill: #c0392b;"
+                + "-fx-border-color: #f4c7c3; -fx-border-radius: 10;"
+                + "-fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;";
+    }
 
     private void carregarParceiros() {
         List<Parceiro> parceiros = parceiroDAO.listarTodos();

@@ -63,6 +63,9 @@ public class TelaPrincipal {
         lblBemVindo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 24));
         lblBemVindo.setStyle("-fx-text-fill: white;");
 
+        Label lblResumo = new Label("Monitore parceiros, contratos e vencimentos em um unico painel.");
+        lblResumo.setStyle("-fx-text-fill: rgba(255,255,255,0.82); -fx-font-size: 13px;");
+
         Label lblPerfil = new Label(usuarioLogado.getTipoUsuario().toString());
         lblPerfil.setStyle(
                 "-fx-background-color: rgba(255,255,255,0.2);"
@@ -95,7 +98,9 @@ public class TelaPrincipal {
         Region espaco = new Region();
         HBox.setHgrow(espaco, Priority.ALWAYS);
 
-        HBox header = new HBox(15, lblBemVindo, lblPerfil, espaco, btnAjuda, btnLogout);
+        VBox blocoTitulo = new VBox(4, lblBemVindo, lblResumo);
+
+        HBox header = new HBox(15, blocoTitulo, lblPerfil, espaco, btnAjuda, btnLogout);
         header.setPadding(new Insets(20));
         header.setAlignment(Pos.CENTER_LEFT);
         header.setStyle(
@@ -104,6 +109,7 @@ public class TelaPrincipal {
         );
 
         HBox indicadores = criarIndicadores(resumo);
+        Label lblSecaoIndicadores = criarLabelSecao("Visao geral");
 
         HBox painelCentral = new HBox(18,
                 criarPainelAgrupamento("Contratos por tipo", resumo.getContratosPorTipo()),
@@ -116,8 +122,17 @@ public class TelaPrincipal {
         HBox.setHgrow(painelCentral.getChildren().get(2), Priority.ALWAYS);
 
         HBox acoesRapidas = criarAcoesRapidas(resumo);
+        Label lblSecaoAnalise = criarLabelSecao("Analises e prioridades");
+        Label lblSecaoAcoes = criarLabelSecao("Acoes rapidas");
 
-        VBox conteudo = new VBox(22, indicadores, painelCentral, acoesRapidas);
+        VBox conteudo = new VBox(18,
+                lblSecaoIndicadores,
+                indicadores,
+                lblSecaoAnalise,
+                painelCentral,
+                lblSecaoAcoes,
+                acoesRapidas
+        );
         conteudo.setPadding(new Insets(26));
         conteudo.setFillWidth(true);
 
@@ -184,15 +199,15 @@ public class TelaPrincipal {
 
         VBox box = new VBox(6, lblValor, lblTitulo);
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setPadding(new Insets(16));
+        box.setPadding(new Insets(18));
         box.setMinWidth(170);
         box.setMaxWidth(Double.MAX_VALUE);
         box.setStyle(
                 "-fx-background-color: white;"
-                + "-fx-background-radius: 8;"
-                + "-fx-border-radius: 8;"
-                + "-fx-border-color: rgba(0,0,0,0.06);"
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);"
+                + "-fx-background-radius: 14;"
+                + "-fx-border-radius: 14;"
+                + "-fx-border-color: #dbe5ec;"
+                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12,0,0,3);"
         );
         HBox.setHgrow(box, Priority.ALWAYS);
         String baseStyle = box.getStyle() + "-fx-cursor: hand;";
@@ -232,9 +247,10 @@ public class TelaPrincipal {
         painel.setMaxWidth(Double.MAX_VALUE);
         painel.setStyle(
                 "-fx-background-color: white;"
-                + "-fx-background-radius: 8;"
-                + "-fx-border-radius: 8;"
-                + "-fx-border-color: rgba(0,0,0,0.06);"
+                + "-fx-background-radius: 14;"
+                + "-fx-border-radius: 14;"
+                + "-fx-border-color: #dbe5ec;"
+                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12,0,0,3);"
         );
         return painel;
     }
@@ -295,9 +311,10 @@ public class TelaPrincipal {
         painel.setMaxWidth(Double.MAX_VALUE);
         painel.setStyle(
                 "-fx-background-color: white;"
-                + "-fx-background-radius: 8;"
-                + "-fx-border-radius: 8;"
-                + "-fx-border-color: rgba(0,0,0,0.06);"
+                + "-fx-background-radius: 14;"
+                + "-fx-border-radius: 14;"
+                + "-fx-border-color: #dbe5ec;"
+                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12,0,0,3);"
         );
         return painel;
     }
@@ -453,6 +470,13 @@ public class TelaPrincipal {
         });
 
         return btn;
+    }
+
+    private Label criarLabelSecao(String texto) {
+        Label label = new Label(texto);
+        label.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        label.setStyle("-fx-text-fill: #4ca1af; -fx-padding: 4 0 0 2;");
+        return label;
     }
 
     private void verificarContratosVencidos() {
