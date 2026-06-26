@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contratech | Avaliacao de Design</title>
+  <style>
+    :root {
+      --navy: #1f3142;
+      --teal: #1595a3;
+      --sky: #dfeef3;
+      --mist: #f5f8fb;
+      --ink: #17212b;
+      --muted: #5b6773;
+      --line: #d6e1e8;
+      --good: #0f766e;
+      --warn: #c2410c;
+      --accent: #e9f7f8;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(21, 149, 163, 0.12), transparent 28%),
+        linear-gradient(180deg, #edf4f7 0%, #dfe9ef 100%);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      display: grid;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .slide {
+      min-height: calc(100vh - 48px);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
+      border-radius: 28px;
+      box-shadow: 0 28px 56px rgba(18, 32, 48, 0.16);
+      overflow: hidden;
+      position: relative;
+      padding: 48px 56px;
+      display: grid;
+      gap: 28px;
+      page-break-after: always;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 10px;
+      background: linear-gradient(90deg, var(--navy), var(--teal));
+    }
+
+    .hero {
+      background:
+        radial-gradient(circle at 15% 20%, rgba(21, 149, 163, 0.20), transparent 28%),
+        radial-gradient(circle at 88% 75%, rgba(31, 49, 66, 0.13), transparent 30%),
+        linear-gradient(135deg, #f7fbfc 0%, #edf5f7 48%, #dcebf0 100%);
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+    }
+
+    .two-col {
+      grid-template-columns: 0.95fr 1.05fr;
+      align-items: start;
+    }
+
+    .topline {
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin: 0 0 14px;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      margin: 0 0 18px;
+      color: var(--navy);
+    }
+
+    h2 {
+      font-size: clamp(2rem, 3.2vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin: 0 0 18px;
+      color: var(--navy);
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .summary {
+      display: grid;
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .summary-card {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(31, 49, 66, 0.08);
+      border-radius: 18px;
+      padding: 16px 18px;
+      box-shadow: 0 14px 28px rgba(18, 32, 48, 0.08);
+    }
+
+    .summary-card strong {
+      display: block;
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .hero-panel {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(18, 32, 48, 0.10);
+      border: 1px solid rgba(31, 49, 66, 0.08);
+      display: grid;
+      gap: 18px;
+    }
+
+    .logo {
+      width: 210px;
+      max-width: 100%;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: var(--navy);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .screen-card {
+      background: var(--white);
+      border: 1px solid rgba(31, 49, 66, 0.08);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 20px 36px rgba(18, 32, 48, 0.08);
+    }
+
+    .screen-card img {
+      width: 100%;
+      display: block;
+      border-radius: 18px;
+      background: #edf4f8;
+    }
+
+    .callouts {
+      display: grid;
+      gap: 14px;
+    }
+
+    .callout {
+      border-radius: 18px;
+      padding: 18px 20px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 24px rgba(18, 32, 48, 0.06);
+    }
+
+    .callout h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--navy);
+    }
+
+    .callout ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      display: grid;
+      gap: 8px;
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--good);
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .tag.warn {
+      color: var(--warn);
+    }
+
+    .closing {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .priority-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .priority {
+      border-radius: 20px;
+      padding: 20px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 28px rgba(18, 32, 48, 0.06);
+    }
+
+    .priority strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--navy);
+      font-size: 1rem;
+    }
+
+    .footer-note {
+      margin-top: 4px;
+      color: #708090;
+      font-size: 0.92rem;
+    }
+
+    .slide-no {
+      position: absolute;
+      right: 28px;
+      bottom: 24px;
+      font-size: 0.92rem;
+      color: #8ca0b2;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      main {
+        padding: 0;
+        gap: 0;
+      }
+
+      .slide {
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="slide hero">
+      <div>
+        <div class="topline">CadastroContrato • Contratech</div>
+        <h1>Avaliacao visual das telas e propostas de melhoria</h1>
+        <p>Material montado para revisar a experiencia atual do sistema desktop, reconstruindo as principais telas e destacando oportunidades de design com impacto rapido.</p>
+        <div class="summary">
+          <div class="summary-card">
+            <strong>Escopo</strong>
+            Login, dashboard, parceiros, contratos e central de ajuda.
+          </div>
+          <div class="summary-card">
+            <strong>Foco da avaliacao</strong>
+            Hierarquia visual, legibilidade, densidade de informacao, feedback e consistencia entre componentes.
+          </div>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <img class="logo" src="../../src/main/resources/images/contratech-logo.png" alt="Logo Contratech">
+        <div class="pill-row">
+          <span class="pill">JavaFX desktop</span>
+          <span class="pill">UX/UI review</span>
+          <span class="pill">Melhorias acionaveis</span>
+        </div>
+        <p>Direcao visual sugerida: tons de azul petroleo e teal do produto atual, com mais respiro, contraste funcional e padronizacao dos estados de acao.</p>
+      </div>
+      <span class="slide-no">01</span>
+    </section>
+
+    <section class="slide two-col">
+      <div>
+        <div class="topline">Tela 1</div>
+        <h2>Login</h2>
+        <div class="callouts">
+          <div class="callout">
+            <div class="tag warn">Diagnostico</div>
+            <ul>
+              <li>Boa simplicidade geral, mas o CTA principal ainda concorre com elementos secundarios.</li>
+              <li>O texto de perfis no rodape funciona como informacao tecnica, mas nao como orientacao de entrada.</li>
+              <li>Falta um indicio de seguranca e um caminho de recuperacao de acesso.</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <div class="tag">Melhorias propostas</div>
+            <ul>
+              <li>Dar mais destaque ao botao Entrar e reduzir peso visual do botao Ajuda.</li>
+              <li>Refinar espacamento entre campos, labels e mensagens de apoio.</li>
+              <li>Adicionar microcopys de apoio como perfil de exemplo e suporte de acesso.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="screen-card">
+        <img src="../screenshots/01-login.svg" alt="Tela conceitual de login do Contratech">
+      </div>
+      <span class="slide-no">02</span>
+    </section>
+
+    <section class="slide two-col">
+      <div>
+        <div class="topline">Tela 2</div>
+        <h2>Dashboard</h2>
+        <div class="callouts">
+          <div class="callout">
+            <div class="tag warn">Diagnostico</div>
+            <ul>
+              <li>Os KPIs sao claros, mas o conjunto fica visualmente denso e com pouco ritmo entre blocos.</li>
+              <li>Alertas criticos merecem diferenca maior de prioridade em relacao aos demais cards.</li>
+              <li>Ha espaco para leitura executiva mais rapida das informacoes.</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <div class="tag">Melhorias propostas</div>
+            <ul>
+              <li>Padronizar grid, alturas e alinhamentos dos cartoes.</li>
+              <li>Usar cor semantica com escalas mais consistentes para ativo, atencao e risco.</li>
+              <li>Separar indicadores, distribuicoes e alertas em camadas visuais mais nítidas.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="screen-card">
+        <img src="../screenshots/02-dashboard.svg" alt="Tela conceitual do dashboard do Contratech">
+      </div>
+      <span class="slide-no">03</span>
+    </section>
+
+    <section class="slide two-col">
+      <div>
+        <div class="topline">Tela 3</div>
+        <h2>Cadastro de parceiros</h2>
+        <div class="callouts">
+          <div class="callout">
+            <div class="tag warn">Diagnostico</div>
+            <ul>
+              <li>Formulario e listagem coexistem bem, mas a tela pode ficar carregada em uso real.</li>
+              <li>Algumas larguras de campo e alinhamentos podem induzir leitura quebrada.</li>
+              <li>O botao Consultar CNPJ chama atencao, mas o restante da hierarquia pede mais equilibrio.</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <div class="tag">Melhorias propostas</div>
+            <ul>
+              <li>Organizar dados em grupos com subtitulos e espacos mais claros.</li>
+              <li>Fortalecer labels e estados de foco para facilitar preenchimento continuo.</li>
+              <li>Deixar a tabela com cabecalho mais firme e linhas com contraste mais leve.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="screen-card">
+        <img src="../screenshots/03-parceiros.svg" alt="Tela conceitual do cadastro de parceiros">
+      </div>
+      <span class="slide-no">04</span>
+    </section>
+
+    <section class="slide two-col">
+      <div>
+        <div class="topline">Tela 4</div>
+        <h2>Contratos e clausulas</h2>
+        <div class="callouts">
+          <div class="callout">
+            <div class="tag warn">Diagnostico</div>
+            <ul>
+              <li>A divisao em dois paineis ajuda, mas o volume de campos exige orientacao visual mais forte.</li>
+              <li>Acoes destrutivas aparecem cedo e com peso semelhante ao salvamento.</li>
+              <li>As validacoes automaticas poderiam estar mais proximas do contexto dos campos.</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <div class="tag">Melhorias propostas</div>
+            <ul>
+              <li>Separar dados obrigatorios, financeiros e prazos em blocos visuais.</li>
+              <li>Reduzir destaque do Excluir e reforcar fluxo seguro de preenchimento e gravacao.</li>
+              <li>Levar feedbacks de validacao para perto do erro ou da confirmacao esperada.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="screen-card">
+        <img src="../screenshots/04-contratos.svg" alt="Tela conceitual de contratos e clausulas">
+      </div>
+      <span class="slide-no">05</span>
+    </section>
+
+    <section class="slide two-col">
+      <div>
+        <div class="topline">Tela 5</div>
+        <h2>Central de ajuda</h2>
+        <div class="callouts">
+          <div class="callout">
+            <div class="tag warn">Diagnostico</div>
+            <ul>
+              <li>A estrutura lateral + conteudo funciona, mas pode ficar mais escaneavel.</li>
+              <li>O item ativo pode ter contraste mais forte para navegacao imediata.</li>
+              <li>Os textos podem ganhar camadas tipograficas mais claras entre titulo, passo e dica.</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <div class="tag">Melhorias propostas</div>
+            <ul>
+              <li>Destacar a busca e a navegacao com estados mais nítidos.</li>
+              <li>Usar ritmo maior entre secoes e passos numerados.</li>
+              <li>Dar mais protagonismo ao atalho F1 e a dicas contextuais por modulo.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="screen-card">
+        <img src="../screenshots/05-ajuda.svg" alt="Tela conceitual da ajuda do sistema">
+      </div>
+      <span class="slide-no">06</span>
+    </section>
+
+    <section class="slide closing">
+      <div>
+        <div class="topline">Prioridades</div>
+        <h2>Roadmap de redesign</h2>
+        <p>As melhores evolucoes para a proxima iteracao combinam ganhos rapidos de leitura com ajustes estruturais de formularios e componentes.</p>
+        <p class="footer-note">Classificacao sugerida: ganho rapido = ajustes de hierarquia, espacamento e contraste. Evolucao estrutural = padroes de feedback, estados e grid global.</p>
+      </div>
+      <div class="priority-grid">
+        <div class="priority">
+          <strong>1. Padronizar componentes</strong>
+          Botao primario, secundario, destrutivo, campos e tabelas com o mesmo idioma visual.
+        </div>
+        <div class="priority">
+          <strong>2. Sistema de cores semanticas</strong>
+          Verde para sucesso, laranja para atencao e vermelho para risco, com uso consistente.
+        </div>
+        <div class="priority">
+          <strong>3. Grid e espacamento</strong>
+          Mais respiro entre blocos, melhor alinhamento e leitura mais profissional.
+        </div>
+        <div class="priority">
+          <strong>4. Feedback contextual</strong>
+          Validacoes, estados vazios e confirmacoes mais proximos da acao do usuario.
+        </div>
+      </div>
+      <span class="slide-no">07</span>
+    </section>
+  </main>
+</body>
+</html>

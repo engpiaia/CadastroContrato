@@ -15,6 +15,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
@@ -144,8 +145,9 @@ public class TelaUsuario {
     // ===== TABELA =====
     VBox painelTabela = criarPainelTabela();
 
-    HBox centro = new HBox(15, formulario, painelTabela);
+    HBox centro = new HBox(18, formulario, painelTabela);
     centro.setPadding(new Insets(20));
+    centro.setAlignment(Pos.TOP_LEFT);
     HBox.setHgrow(painelTabela, Priority.ALWAYS);
 
     // ===== ROOT =====
@@ -177,57 +179,65 @@ public class TelaUsuario {
 
         txtNome = new TextField();
         txtNome.setPromptText("Nome");
+        txtNome.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtNome);
 
         txtSobrenome = new TextField();
         txtSobrenome.setPromptText("Sobrenome");
+        txtSobrenome.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtSobrenome);
 
         txtEmail = new TextField();
         txtEmail.setPromptText("email@exemplo.com");
+        txtEmail.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtEmail);
 
         txtSenha = new PasswordField();
         txtSenha.setPromptText("Senha (mín. 6 caracteres)");
+        txtSenha.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtSenha);
 
         cmbTipo = new ComboBox<>(FXCollections.observableArrayList(TipoUsuario.values()));
         cmbTipo.setPromptText("Tipo de Usuário");
         cmbTipo.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(cmbTipo);
 
         // === Botões de ação ===
         Button btnSalvar = new Button("Salvar");
-        btnSalvar.setPrefWidth(120);
         btnSalvar.setMaxWidth(Double.MAX_VALUE);
-        btnSalvar.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
-                         + "-fx-font-weight: bold; -fx-cursor: hand;");
+        btnSalvar.setStyle(estiloBotaoPrimario());
         btnSalvar.setOnAction(e -> salvar());
 
         Button btnExcluir = new Button("Excluir");
-        btnExcluir.setPrefWidth(120);
         btnExcluir.setMaxWidth(Double.MAX_VALUE);
-        btnExcluir.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; "
-                          + "-fx-font-weight: bold; -fx-cursor: hand;");
+        btnExcluir.setStyle(estiloBotaoDestrutivo());
         btnExcluir.setOnAction(e -> excluir());
 
         Button btnLimpar = new Button("Limpar");
-        btnLimpar.setPrefWidth(250);
         btnLimpar.setMaxWidth(Double.MAX_VALUE);
-        btnLimpar.setStyle("-fx-cursor: hand;");
+        btnLimpar.setStyle(estiloBotaoSecundario());
         btnLimpar.setOnAction(e -> limparFormulario());
 
         HBox botoesAcao = new HBox(10, btnSalvar, btnExcluir);
 
         // === Monta o formulário ===
-        VBox form = new VBox(10);
+        VBox form = new VBox(8);
         form.setPadding(new Insets(15));
-        form.setMinWidth(280);
-        form.setMaxWidth(420);
-        form.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
+        form.setMinWidth(300);
+        form.setMaxWidth(430);
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
 
         form.getChildren().addAll(
             lblForm,
             new Separator(),
+            criarTituloSecao("Identificacao"),
             new Label("Nome:"), txtNome,
             new Label("Sobrenome:"), txtSobrenome,
             new Label("E-mail:"), txtEmail,
             new Label("Senha:"), txtSenha,
+            criarTituloSecao("Acesso"),
             new Label("Tipo:"), cmbTipo,
             new Separator(),
             botoesAcao,
@@ -244,13 +254,15 @@ public class TelaUsuario {
         // Campo de pesquisa
         txtPesquisa = new TextField();
         txtPesquisa.setPromptText("Pesquisar por nome...");
+        txtPesquisa.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtPesquisa);
 
         Button btnPesquisar = new Button("Pesquisar");
-        btnPesquisar.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
+        btnPesquisar.setStyle(estiloBotaoPrimario());
         btnPesquisar.setOnAction(e -> pesquisar());
 
         Button btnListarTodos = new Button("Listar Todos");
-        btnListarTodos.setStyle("-fx-cursor: hand;");
+        btnListarTodos.setStyle(estiloBotaoSecundario());
         btnListarTodos.setOnAction(e -> atualizarTabela());
 
         // Enter no campo pesquisa
@@ -308,7 +320,11 @@ public class TelaUsuario {
 
         VBox painel = new VBox(10, barraPesquisa, tabela);
         painel.setPadding(new Insets(15));
-        painel.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
+        painel.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
+        tabela.setStyle("-fx-background-color: transparent;");
+        tabela.setPlaceholder(new Label("Nenhum usuario encontrado."));
 
         return painel;
     }
@@ -472,6 +488,42 @@ public class TelaUsuario {
         txtSenha.clear();
         cmbTipo.setValue(null);
         tabela.getSelectionModel().clearSelection();
+    }
+
+    private void estilizarCampo(Control campo) {
+        campo.setStyle(
+                "-fx-background-color: #f8fafc;"
+                + "-fx-border-color: #cbd5e1;"
+                + "-fx-border-radius: 10;"
+                + "-fx-background-radius: 10;"
+                + "-fx-padding: 10 12;"
+                + "-fx-prompt-text-fill: #94a3b8;"
+        );
+    }
+
+    private Label criarTituloSecao(String texto) {
+        Label label = new Label(texto);
+        label.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        label.setStyle("-fx-text-fill: #4ca1af; -fx-padding: 8 0 0 0;");
+        return label;
+    }
+
+    private String estiloBotaoPrimario() {
+        return "-fx-background-color: linear-gradient(to right, #4ca1af, #2c3e50);"
+                + "-fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                + "-fx-background-radius: 10; -fx-padding: 10 14;";
+    }
+
+    private String estiloBotaoSecundario() {
+        return "-fx-background-color: #f8fafc; -fx-text-fill: #2c3e50;"
+                + "-fx-border-color: #d7e0e8; -fx-border-radius: 10;"
+                + "-fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;";
+    }
+
+    private String estiloBotaoDestrutivo() {
+        return "-fx-background-color: #fdecec; -fx-text-fill: #c0392b;"
+                + "-fx-border-color: #f4c7c3; -fx-border-radius: 10;"
+                + "-fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;";
     }
 }
 

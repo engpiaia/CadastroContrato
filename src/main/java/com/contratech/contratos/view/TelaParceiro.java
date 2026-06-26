@@ -182,10 +182,12 @@ public class TelaParceiro {
         txtRazaoSocial = new TextField();
         txtRazaoSocial.setPromptText("Nome / Razão Social");
         txtRazaoSocial.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtRazaoSocial);
 
         txtCnpjCpf = new TextField();
         txtCnpjCpf.setPromptText("CNPJ ou CPF (somente números)");
         txtCnpjCpf.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtCnpjCpf);
         aplicarMascara(txtCnpjCpf, 14, this::formatarDocumento);
 
 // Dispara consulta à API ao sair do campo com 14 dígitos (CNPJ)
@@ -202,14 +204,17 @@ public class TelaParceiro {
         txtEndereco = new TextField();
         txtEndereco.setPromptText("Rua, número, complemento");
         txtEndereco.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtEndereco);
 
         txtCidade = new TextField();
         txtCidade.setPromptText("Cidade");
         txtCidade.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtCidade);
 
         txtUf = new TextField();
         txtUf.setPromptText("UF (ex: SC)");
         txtUf.setPrefWidth(80);
+        estilizarCampo(txtUf);
         // Limita UF a 2 caracteres
         txtUf.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && newVal.length() > 2) {
@@ -220,6 +225,7 @@ public class TelaParceiro {
         txtCep = new TextField();
         txtCep.setPromptText("CEP (somente números)");
         txtCep.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtCep);
         aplicarMascara(txtCep, 8, this::formatarCep);
 
         // Cidade + UF lado a lado
@@ -229,31 +235,31 @@ public class TelaParceiro {
         txtTelefone = new TextField();
         txtTelefone.setPromptText("(49) 99999-9999");
         txtTelefone.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtTelefone);
         aplicarMascara(txtTelefone, 11, this::formatarTelefone);
 
         txtEmail = new TextField();
         txtEmail.setPromptText("email@exemplo.com");
         txtEmail.setMaxWidth(Double.MAX_VALUE);
+        estilizarCampo(txtEmail);
 
         // === Botões de ação ===
         Button btnSalvar = new Button("Salvar");
         btnSalvar.setPrefWidth(120);
         btnSalvar.setMaxWidth(Double.MAX_VALUE);
-        btnSalvar.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
-                + "-fx-font-weight: bold; -fx-cursor: hand;");
+        btnSalvar.setStyle(estiloBotaoPrimario());
         btnSalvar.setOnAction(e -> salvar());
 
         Button btnExcluir = new Button("Excluir");
         btnExcluir.setPrefWidth(120);
         btnExcluir.setMaxWidth(Double.MAX_VALUE);
-        btnExcluir.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; "
-                + "-fx-font-weight: bold; -fx-cursor: hand;");
+        btnExcluir.setStyle(estiloBotaoDestrutivo());
         btnExcluir.setOnAction(e -> excluir());
 
         Button btnLimpar = new Button("Limpar");
         btnLimpar.setPrefWidth(250);
         btnLimpar.setMaxWidth(Double.MAX_VALUE);
-        btnLimpar.setStyle("-fx-cursor: hand;");
+        btnLimpar.setStyle(estiloBotaoSecundario());
         btnLimpar.setOnAction(e -> limparFormulario());
 
         HBox botoesAcao = new HBox(10, btnSalvar, btnExcluir);
@@ -266,14 +272,19 @@ public class TelaParceiro {
         form.setPadding(new Insets(15));
         form.setMinWidth(300);
         form.setMaxWidth(430);
-        form.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
 
         form.getChildren().addAll(
                 lblForm,
                 new Separator(),
+                criarTituloSecao("Identificacao"),
                 new Label("Razão Social / Nome:"), txtRazaoSocial,
                 new Label("CNPJ / CPF:"), txtCnpjCpf,
+                criarTextoApoio("CNPJ com 14 digitos consulta dados automaticamente ao sair do campo."),
                 new Label("Endereço:"), txtEndereco,
+                criarTituloSecao("Contato"),
                 new Label("Cidade / UF:"), linhaCidadeUf,
                 new Label("CEP:"), txtCep,
                 new Label("Telefone:"), txtTelefone,
@@ -291,14 +302,15 @@ public class TelaParceiro {
      */
     private VBox criarPainelTabela() {
         txtPesquisa = new TextField();
+        estilizarCampo(txtPesquisa);
         txtPesquisa.setPromptText("Pesquisar por razão social ou CNPJ/CPF...");
 
         Button btnPesquisar = new Button("Pesquisar");
-        btnPesquisar.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
+        btnPesquisar.setStyle(estiloBotaoPrimario());
         btnPesquisar.setOnAction(e -> pesquisar());
 
         Button btnListarTodos = new Button("Listar Todos");
-        btnListarTodos.setStyle("-fx-cursor: hand;");
+        btnListarTodos.setStyle(estiloBotaoSecundario());
         btnListarTodos.setOnAction(e -> atualizarTabela());
 
         txtPesquisa.setOnAction(e -> pesquisar());
@@ -312,6 +324,8 @@ public class TelaParceiro {
         listaParceiros = FXCollections.observableArrayList();
         tabela.setItems(listaParceiros);
         tabela.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tabela.setPlaceholder(new Label("Nenhum parceiro encontrado."));
+        tabela.setStyle("-fx-background-color: transparent;");
 
         configurarColunas();
 
@@ -327,7 +341,9 @@ public class TelaParceiro {
 
         VBox painel = new VBox(10, barraPesquisa, tabela);
         painel.setPadding(new Insets(15));
-        painel.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
+        painel.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
+                + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
 
         return painel;
     }
@@ -612,6 +628,49 @@ public class TelaParceiro {
         if (campo != null && campo.getText().trim().isEmpty() && valor != null) {
             campo.setText(valor);
         }
+    }
+
+    private void estilizarCampo(TextField campo) {
+        campo.setStyle(
+                "-fx-background-color: #f8fafc;"
+                + "-fx-border-color: #cbd5e1;"
+                + "-fx-border-radius: 10;"
+                + "-fx-background-radius: 10;"
+                + "-fx-padding: 10 12;"
+                + "-fx-prompt-text-fill: #94a3b8;"
+        );
+    }
+
+    private Label criarTituloSecao(String texto) {
+        Label label = new Label(texto);
+        label.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        label.setStyle("-fx-text-fill: #4ca1af; -fx-padding: 8 0 0 0;");
+        return label;
+    }
+
+    private Label criarTextoApoio(String texto) {
+        Label label = new Label(texto);
+        label.setWrapText(true);
+        label.setStyle("-fx-text-fill: #6b7b8c; -fx-font-size: 11px;");
+        return label;
+    }
+
+    private String estiloBotaoPrimario() {
+        return "-fx-background-color: linear-gradient(to right, #4ca1af, #2c3e50);"
+                + "-fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                + "-fx-background-radius: 10; -fx-padding: 10 14;";
+    }
+
+    private String estiloBotaoSecundario() {
+        return "-fx-background-color: #f8fafc; -fx-text-fill: #2c3e50;"
+                + "-fx-border-color: #d7e0e8; -fx-border-radius: 10;"
+                + "-fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;";
+    }
+
+    private String estiloBotaoDestrutivo() {
+        return "-fx-background-color: #fdecec; -fx-text-fill: #c0392b;"
+                + "-fx-border-color: #f4c7c3; -fx-border-radius: 10;"
+                + "-fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;";
     }
 
     private void aplicarMascara(TextField campo, int maxDigitos, Function<String, String> formatador) {
