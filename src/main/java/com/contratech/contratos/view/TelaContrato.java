@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -32,6 +33,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -41,6 +43,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -98,6 +101,15 @@ public class TelaContrato {
     private TableView<Clausula> tabelaClausulas;
     private ObservableList<Clausula> listaClausulas;
     private VBox painelClausulas;
+    private StackPane painelTabelaStack;
+    private StackPane overlayVisualizacaoContrato;
+    private Label lblVisualizacaoTitulo;
+    private Label lblVisualizacaoResumo;
+    private VBox boxDetalhesVisualizacao;
+    private VBox boxClausulasVisualizacao;
+    private Label lblResumoContrato;
+    private Label lblChecklistContrato;
+    private Label lblResumoClausulas;
 
     // ==================== CONTROLE DE ESTADO ====================
     private Contrato contratoSelecionado = null;
@@ -176,29 +188,21 @@ public class TelaContrato {
     // ===== FORMULÁRIO =====
     VBox formContrato = criarFormularioContrato();
 
-    ScrollPane scrollForm = new ScrollPane(formContrato);
-    scrollForm.setFitToWidth(true);
-    scrollForm.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-    scrollForm.setStyle("-fx-background-color: transparent;");
 
     // ===== CLÁUSULAS VISÍVEL (FIXO) =====
     painelClausulas = criarPainelClausulas();
 
-    VBox esquerda = new VBox(14, scrollForm, painelClausulas);
-    esquerda.setPrefWidth(410);
-    VBox.setVgrow(scrollForm, Priority.ALWAYS);
-
     if (usuarioLogado.getTipoUsuario() == Usuario.TipoUsuario.VISUALIZADOR) {
-        esquerda.setDisable(true);
-        esquerda.setOpacity(0.98);
+        formContrato.setDisable(true);
+        painelClausulas.setDisable(true);
     }
 
     // ===== TABELA =====
-    VBox tabela = criarPainelTabelaContratos();
+    StackPane tabela = criarPainelTabelaContratos(formContrato, painelClausulas);
 
-    HBox centro = new HBox(20, esquerda, tabela);
+    VBox centro = new VBox(tabela);
     centro.setPadding(new Insets(20));
-    HBox.setHgrow(tabela, Priority.ALWAYS);
+    VBox.setVgrow(tabela, Priority.ALWAYS);
 
     // ===== ROOT =====
     BorderPane root = new BorderPane();
@@ -222,6 +226,7 @@ public class TelaContrato {
             aplicarFiltroInicial();
         }
         atualizarEstadoClausulas();
+        atualizarResumoContrato();
 }
 
     private void aplicarFiltroInicial() {
@@ -246,6 +251,13 @@ public class TelaContrato {
     private VBox criarFormularioContrato() {
         Label lblForm = new Label("Dados do Contrato");
         lblForm.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+
+        lblResumoContrato = criarResumoPainel(
+                "Novo contrato",
+                "Preencha os campos principais e selecione um registro na tabela quando quiser editar."
+        );
+        lblChecklistContrato = new Label();
+        lblChecklistContrato.setWrapText(true);
 
         // --- Nº Contrato ---
         txtNumeroContrato = new TextField();
@@ -340,6 +352,7 @@ public class TelaContrato {
         txtObservacoes.setWrapText(true);
         txtObservacoes.setMaxWidth(Double.MAX_VALUE);
         estilizarCampo(txtObservacoes);
+        configurarChecklistContrato();
 
         // === Botões ===
         Button btnSalvar = new Button("Salvar");
@@ -376,6 +389,8 @@ public class TelaContrato {
 
         form.getChildren().addAll(
                 lblForm,
+                lblResumoContrato,
+                lblChecklistContrato,
                 new Separator(),
                 criarTituloSecao("Dados do contrato"),
                 criarTextoApoio("Comece por numero, parceiro e objeto. Os demais campos refinam o contrato."),
@@ -406,6 +421,11 @@ public class TelaContrato {
     private VBox criarPainelClausulas() {
         Label lblTitulo = new Label("Cláusulas do Contrato");
         lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+
+        lblResumoClausulas = criarResumoPainel(
+                "Clausulas bloqueadas",
+                "Selecione um contrato na tabela para cadastrar e revisar as clausulas vinculadas."
+        );
 
         // --- Nº da Cláusula ---
         txtClausulaNumero = new TextField();
@@ -452,7 +472,10 @@ public class TelaContrato {
         tabelaClausulas.setPrefHeight(180);
         tabelaClausulas.setStyle("-fx-background-color: transparent;");
         VBox.setVgrow(tabelaClausulas, Priority.ALWAYS);
-        tabelaClausulas.setPlaceholder(new Label("Nenhuma cláusula cadastrada."));
+        tabelaClausulas.setPlaceholder(criarResumoPainel(
+                "Nenhuma clausula cadastrada",
+                "Use o formulario acima para incluir a primeira clausula deste contrato."
+        ));
 
         configurarColunasClausulas();
 
@@ -474,6 +497,7 @@ public class TelaContrato {
 
         painel.getChildren().addAll(
                 lblTitulo,
+                lblResumoClausulas,
                 new Separator(),
                 new Label("Nº Cláusula:"), txtClausulaNumero,
                 new Label("Descrição:"), txtClausulaDescricao,
@@ -516,7 +540,7 @@ public class TelaContrato {
     // TABELA DE CONTRATOS (direita)
     // ===================================================================
 
-    private VBox criarPainelTabelaContratos() {
+    private StackPane criarPainelTabelaContratos(VBox formContrato, VBox painelClausulas) {
         txtPesquisa = new TextField();
         estilizarCampo(txtPesquisa);
         txtPesquisa.setPromptText("Pesquisar por nº contrato, objeto ou parceiro...");
@@ -529,9 +553,16 @@ public class TelaContrato {
         btnListarTodos.setStyle(estiloBotaoSecundario());
         btnListarTodos.setOnAction(e -> atualizarTabelaContratos());
 
+        Button btnNovoContrato = new Button("Novo contrato");
+        btnNovoContrato.setStyle(estiloBotaoPrimario());
+        btnNovoContrato.setOnAction(e -> {
+            limparFormularioContrato();
+            abrirVisualizacaoContrato(null);
+        });
+
         txtPesquisa.setOnAction(e -> pesquisarContratos());
 
-        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar, btnListarTodos);
+        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar, btnListarTodos, btnNovoContrato);
         barraPesquisa.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(txtPesquisa, Priority.ALWAYS);
 
@@ -553,6 +584,17 @@ public class TelaContrato {
                     }
                 }
         );
+        tabelaContratos.setRowFactory(tv -> {
+            TableRow<Contrato> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    Contrato contrato = row.getItem();
+                    tabelaContratos.getSelectionModel().select(contrato);
+                    abrirVisualizacaoContrato(contrato);
+                }
+            });
+            return row;
+        });
 
         VBox.setVgrow(tabelaContratos, Priority.ALWAYS);
 
@@ -567,7 +609,12 @@ public class TelaContrato {
                 + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
         painel.setMaxWidth(Double.MAX_VALUE);
 
-        return painel;
+        painelTabelaStack = new StackPane(painel);
+        overlayVisualizacaoContrato = criarOverlayVisualizacaoContrato(formContrato, painelClausulas);
+        painelTabelaStack.getChildren().add(overlayVisualizacaoContrato);
+        painelTabelaStack.setMaxWidth(Double.MAX_VALUE);
+        VBox.setVgrow(painelTabelaStack, Priority.ALWAYS);
+        return painelTabelaStack;
     }
 
     private void configurarColunasContratos() {
@@ -664,6 +711,115 @@ public class TelaContrato {
         colunasContratos.add(colStatus);
         colunasContratos.add(colVencimento);
         tabelaContratos.getColumns().addAll(colunasContratos);
+    }
+
+    private StackPane criarOverlayVisualizacaoContrato(VBox formContrato, VBox painelClausulas) {
+        lblVisualizacaoTitulo = new Label("Novo contrato");
+        lblVisualizacaoTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 22));
+        lblVisualizacaoTitulo.setStyle("-fx-text-fill: #183b56;");
+
+        lblVisualizacaoResumo = new Label("Use este painel ampliado para consultar, criar, editar e excluir contratos e clausulas.");
+        lblVisualizacaoResumo.setWrapText(true);
+        lblVisualizacaoResumo.setStyle("-fx-text-fill: #5f6c7b; -fx-font-size: 12px;");
+
+        Button btnEditar = new Button("Novo contrato");
+        btnEditar.setStyle(estiloBotaoPrimario());
+        btnEditar.setOnAction(e -> abrirVisualizacaoContrato(null));
+
+        Button btnFechar = new Button("Fechar");
+        btnFechar.setStyle(estiloBotaoSecundario());
+        btnFechar.setOnAction(e -> fecharVisualizacaoContrato());
+
+        HBox acoes = new HBox(10, btnEditar, btnFechar);
+        acoes.setAlignment(Pos.CENTER_RIGHT);
+
+        ScrollPane scrollForm = new ScrollPane(formContrato);
+        scrollForm.setFitToWidth(true);
+        scrollForm.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollForm.setStyle("-fx-background-color: transparent;");
+
+        ScrollPane scrollClausulas = new ScrollPane(painelClausulas);
+        scrollClausulas.setFitToWidth(true);
+        scrollClausulas.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollClausulas.setStyle("-fx-background-color: transparent;");
+
+        HBox conteudo = new HBox(18, scrollForm, scrollClausulas);
+        HBox.setHgrow(scrollForm, Priority.ALWAYS);
+        HBox.setHgrow(scrollClausulas, Priority.ALWAYS);
+        scrollForm.prefWidthProperty().bind(conteudo.widthProperty().multiply(0.42));
+        scrollClausulas.prefWidthProperty().bind(conteudo.widthProperty().multiply(0.58));
+
+        VBox card = new VBox(16, lblVisualizacaoTitulo, lblVisualizacaoResumo, conteudo, acoes);
+        card.setMaxWidth(Double.MAX_VALUE);
+        card.setPadding(new Insets(22));
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 22;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 22;"
+                + "-fx-effect: dropshadow(gaussian, rgba(15,23,42,0.24), 28,0,0,10);");
+
+        overlayVisualizacaoContrato = new StackPane(card);
+        overlayVisualizacaoContrato.setPadding(new Insets(24));
+        overlayVisualizacaoContrato.setStyle("-fx-background-color: rgba(15, 23, 42, 0.24);");
+        overlayVisualizacaoContrato.setVisible(false);
+        overlayVisualizacaoContrato.setManaged(false);
+        card.prefWidthProperty().bind(painelTabelaStack.widthProperty().multiply(0.9));
+        card.prefHeightProperty().bind(painelTabelaStack.heightProperty().multiply(0.9));
+        return overlayVisualizacaoContrato;
+    }
+
+    private void abrirVisualizacaoContrato(Contrato contrato) {
+        if (overlayVisualizacaoContrato == null) {
+            return;
+        }
+        if (contrato != null) {
+            preencherFormularioContrato(contrato);
+        } else {
+            limparFormularioContrato();
+        }
+        atualizarVisualizacaoContrato();
+        overlayVisualizacaoContrato.setManaged(true);
+        overlayVisualizacaoContrato.setVisible(true);
+    }
+
+    private void fecharVisualizacaoContrato() {
+        if (overlayVisualizacaoContrato == null) {
+            return;
+        }
+        overlayVisualizacaoContrato.setVisible(false);
+        overlayVisualizacaoContrato.setManaged(false);
+    }
+
+    private void atualizarVisualizacaoContrato() {
+        if (lblVisualizacaoTitulo == null || lblVisualizacaoResumo == null) {
+            return;
+        }
+
+        if (contratoSelecionado == null) {
+            lblVisualizacaoTitulo.setText("Novo contrato");
+            lblVisualizacaoResumo.setText("Preencha os dados principais e depois cadastre as clausulas vinculadas.");
+            return;
+        }
+
+        lblVisualizacaoTitulo.setText("Contrato " + textoOuPadrao(contratoSelecionado.getNumeroContrato(), "sem numero"));
+        lblVisualizacaoResumo.setText(textoOuPadrao(contratoSelecionado.getParceiroNome(), "Parceiro nao informado")
+                + " � " + textoOuPadrao(contratoSelecionado.getStatus(), "Status nao informado")
+                + " � vigencia " + formatarData(contratoSelecionado.getDataInicio()) + " ate "
+                + formatarData(contratoSelecionado.getDataFim()));
+    }
+
+    private VBox criarCartaoDetalhe(String titulo, String valor) {
+        Label lblTitulo = new Label(titulo);
+        lblTitulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        lblTitulo.setStyle("-fx-text-fill: #1f4e79;");
+
+        Label lblValor = new Label(valor);
+        lblValor.setWrapText(true);
+        lblValor.setStyle("-fx-text-fill: #334155; -fx-font-size: 12px;");
+
+        VBox card = new VBox(4, lblTitulo, lblValor);
+        card.setPadding(new Insets(12));
+        card.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 14;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;");
+        return card;
     }
 
     // ===================================================================
@@ -804,6 +960,7 @@ public class TelaContrato {
             AlertaUtil.info("Sucesso",
                     isInsercao ? "Contrato cadastrado com sucesso."
                             : "Contrato atualizado com sucesso.");
+            fecharVisualizacaoContrato();
             limparFormularioContrato();
             atualizarTabelaContratos();
         } else {
@@ -826,6 +983,7 @@ public class TelaContrato {
             boolean sucesso = contratoDAO.excluir(contratoSelecionado.getId());
             if (sucesso) {
                 AlertaUtil.info("Sucesso", "Contrato excluído.");
+                fecharVisualizacaoContrato();
                 limparFormularioContrato();
                 atualizarTabelaContratos();
             } else {
@@ -835,6 +993,7 @@ public class TelaContrato {
     }
 
     private void pesquisarContratos() {
+        fecharVisualizacaoContrato();
         String termo = txtPesquisa.getText().trim();
         if (termo.isEmpty()) {
             atualizarTabelaContratos();
@@ -881,6 +1040,7 @@ public class TelaContrato {
     }
 
     private void aplicarFiltroContratos(String filtro) {
+        fecharVisualizacaoContrato();
         filtroAtual = filtro;
         switch (filtro) {
             case "ATIVO" -> listaContratos.setAll(contratoDAO.listarPorStatus("ATIVO"));
@@ -997,6 +1157,9 @@ public class TelaContrato {
                     isInsercao ? "Cláusula adicionada." : "Cláusula atualizada.");
             limparFormularioClausula();
             atualizarTabelaClausulas();
+            if (overlayVisualizacaoContrato != null && overlayVisualizacaoContrato.isVisible() && contratoSelecionado != null) {
+                atualizarVisualizacaoContrato();
+            }
         } else {
             AlertaUtil.erro("Erro", "Não foi possível salvar a cláusula.");
         }
@@ -1018,6 +1181,9 @@ public class TelaContrato {
                 AlertaUtil.info("Sucesso", "Cláusula excluída.");
                 limparFormularioClausula();
                 atualizarTabelaClausulas();
+                if (overlayVisualizacaoContrato != null && overlayVisualizacaoContrato.isVisible() && contratoSelecionado != null) {
+                    atualizarVisualizacaoContrato();
+                }
             } else {
                 AlertaUtil.erro("Erro", "Não foi possível excluir a cláusula.");
             }
@@ -1030,6 +1196,76 @@ public class TelaContrato {
         } else {
             listaClausulas.clear();
         }
+        atualizarResumoClausulas();
+    }
+
+    private void configurarChecklistContrato() {
+        txtNumeroContrato.textProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        cbParceiro.valueProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        txtObjeto.textProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        cbTipo.valueProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        cbFormaPagamento.valueProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        txtDataInicio.valueProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        txtDataFim.valueProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        cbStatus.valueProperty().addListener((obs, antigo, novo) -> atualizarChecklistContrato());
+        atualizarChecklistContrato();
+    }
+
+    private void atualizarChecklistContrato() {
+        if (lblChecklistContrato == null) {
+            return;
+        }
+
+        List<String> pendencias = new ArrayList<>();
+        if (txtNumeroContrato == null || txtNumeroContrato.getText().trim().isEmpty()) {
+            pendencias.add("numero");
+        }
+        if (cbParceiro == null || cbParceiro.getValue() == null) {
+            pendencias.add("parceiro");
+        }
+        if (txtObjeto == null || txtObjeto.getText().trim().isEmpty()) {
+            pendencias.add("objeto");
+        }
+        if (cbTipo == null || cbTipo.getValue() == null) {
+            pendencias.add("tipo");
+        }
+        if (cbFormaPagamento == null || cbFormaPagamento.getValue() == null) {
+            pendencias.add("forma de pagamento");
+        }
+        if (txtDataInicio == null || txtDataInicio.getValue() == null) {
+            pendencias.add("data de inicio");
+        }
+        if (txtDataFim == null || txtDataFim.getValue() == null) {
+            pendencias.add("data de fim");
+        }
+        if (cbStatus == null || cbStatus.getValue() == null) {
+            pendencias.add("status");
+        }
+
+        boolean vigenciaInvalida = txtDataInicio != null && txtDataFim != null
+                && txtDataInicio.getValue() != null && txtDataFim.getValue() != null
+                && txtDataFim.getValue().isBefore(txtDataInicio.getValue());
+
+        if (vigenciaInvalida) {
+            lblChecklistContrato.setText("Revise a vigencia: a data fim nao pode ser anterior a data de inicio.");
+            lblChecklistContrato.setStyle("-fx-background-color: #fff1f2; -fx-background-radius: 12;"
+                    + "-fx-border-color: #fecdd3; -fx-border-radius: 12;"
+                    + "-fx-padding: 10 12; -fx-text-fill: #b42318; -fx-font-size: 11px; -fx-font-weight: bold;");
+            return;
+        }
+
+        if (pendencias.isEmpty()) {
+            lblChecklistContrato.setText("Formulario pronto para salvar. Revise valores e observacoes opcionais antes de confirmar.");
+            lblChecklistContrato.setStyle("-fx-background-color: #ecfdf3; -fx-background-radius: 12;"
+                    + "-fx-border-color: #abefc6; -fx-border-radius: 12;"
+                    + "-fx-padding: 10 12; -fx-text-fill: #027a48; -fx-font-size: 11px; -fx-font-weight: bold;");
+            return;
+        }
+
+        lblChecklistContrato.setText("Pendencias do cadastro: faltam " + String.join(", ", pendencias) + ".");
+        lblChecklistContrato.setStyle("-fx-background-color: #fffaeb; -fx-background-radius: 12;"
+                + "-fx-border-color: #fedf89; -fx-border-radius: 12;"
+                + "-fx-padding: 10 12; -fx-text-fill: #b54708; -fx-font-size: 11px; -fx-font-weight: bold;");
     }
 
     // ===================================================================
@@ -1068,6 +1304,7 @@ public class TelaContrato {
         }
 
         // Atualiza cláusulas do contrato selecionado
+        atualizarResumoContrato();
         atualizarEstadoClausulas();
         atualizarTabelaClausulas();
         limparFormularioClausula();
@@ -1075,6 +1312,7 @@ public class TelaContrato {
         // Sugere próximo número de cláusula
         int proximo = clausulaDAO.proximoNumero(c.getId());
         txtClausulaNumero.setText(String.valueOf(proximo));
+        atualizarChecklistContrato();
     }
 
     private void limparFormularioContrato() {
@@ -1099,7 +1337,11 @@ public class TelaContrato {
         // Limpa cláusulas
         limparFormularioClausula();
         listaClausulas.clear();
+        atualizarResumoContrato();
         atualizarEstadoClausulas();
+        atualizarResumoClausulas();
+        atualizarChecklistContrato();
+        fecharVisualizacaoContrato();
     }
 
     private void preencherFormularioClausula(Clausula c) {
@@ -1130,11 +1372,99 @@ public class TelaContrato {
         boolean desabilitado = (contratoSelecionado == null);
         painelClausulas.setDisable(desabilitado);
         painelClausulas.setOpacity(desabilitado ? 0.5 : 1.0);
+        atualizarResumoClausulas();
     }
 
     // ===================================================================
     // UTILITÁRIOS
     // ===================================================================
+
+    private Label criarResumoPainel(String titulo, String texto) {
+        Label label = new Label(titulo + "\n" + texto);
+        label.setWrapText(true);
+        label.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 12;"
+                + "-fx-border-color: #dbe5ec; -fx-border-radius: 12;"
+                + "-fx-padding: 10 12; -fx-text-fill: #516170; -fx-font-size: 11px;");
+        return label;
+    }
+
+    private void atualizarResumoContrato() {
+        if (lblResumoContrato == null) {
+            return;
+        }
+
+        if (contratoSelecionado == null) {
+            lblResumoContrato.setText("Novo contrato\n"
+                    + "Preencha os campos principais e selecione um registro na tabela quando quiser editar.");
+            return;
+        }
+
+        String parceiro = cbParceiro.getValue() != null
+                ? cbParceiro.getValue().getRazaoSocial() : "Parceiro nao informado";
+        String status = cbStatus.getValue() != null ? cbStatus.getValue() : "Status em definicao";
+        String vigencia = txtDataFim.getValue() != null ? txtDataFim.getValue().format(FMT) : "sem data final";
+
+        lblResumoContrato.setText("Contrato em edicao\n"
+                + contratoSelecionado.getNumeroContrato() + " • " + parceiro
+                + " • " + status + " • vigencia ate " + vigencia + ".");
+    }
+
+    private void atualizarResumoClausulas() {
+        if (lblResumoClausulas == null || tabelaClausulas == null) {
+            return;
+        }
+
+        if (contratoSelecionado == null) {
+            lblResumoClausulas.setText("Clausulas bloqueadas\n"
+                    + "Selecione um contrato na tabela para cadastrar e revisar as clausulas vinculadas.");
+            tabelaClausulas.setPlaceholder(criarResumoPainel(
+                    "Selecione um contrato",
+                    "As clausulas ficam disponiveis depois que um contrato e carregado para edicao."
+            ));
+            return;
+        }
+
+        int quantidade = listaClausulas != null ? listaClausulas.size() : 0;
+        String numeroContrato = contratoSelecionado.getNumeroContrato() != null
+                ? contratoSelecionado.getNumeroContrato() : "sem numero";
+
+        if (quantidade == 0) {
+            lblResumoClausulas.setText("Contrato pronto para detalhamento\n"
+                    + "O contrato " + numeroContrato + " ainda nao possui clausulas cadastradas.");
+            tabelaClausulas.setPlaceholder(criarResumoPainel(
+                    "Nenhuma clausula cadastrada",
+                    "Use o formulario acima para incluir a primeira clausula deste contrato."
+            ));
+            return;
+        }
+
+        lblResumoClausulas.setText("Clausulas em revisao\n"
+                + "O contrato " + numeroContrato + " possui " + quantidade
+                + (quantidade == 1 ? " clausula cadastrada." : " clausulas cadastradas."));
+        tabelaClausulas.setPlaceholder(criarResumoPainel(
+                "Lista atualizada",
+                "Nenhum item para exibir no momento."
+        ));
+    }
+
+    private String formatarData(LocalDate data) {
+        return data != null ? data.format(FMT) : "nao informada";
+    }
+
+    private String formatarMoeda(BigDecimal valor) {
+        return valor != null ? String.format("R$ %,.2f", valor) : "Nao informado";
+    }
+
+    private String formatarFormaPagamento(String formaPagamento) {
+        if (formaPagamento == null || formaPagamento.isBlank()) {
+            return "Nao informado";
+        }
+        return formaPagamento.replace("_", " ").toLowerCase();
+    }
+
+    private String textoOuPadrao(String valor, String padrao) {
+        return valor == null || valor.isBlank() ? padrao : valor;
+    }
 
     private void estilizarCampo(Control control) {
         control.setStyle(
@@ -1289,4 +1619,3 @@ public class TelaContrato {
         return badge;
     }
 }
-
