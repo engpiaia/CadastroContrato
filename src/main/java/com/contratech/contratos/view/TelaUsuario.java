@@ -219,6 +219,18 @@ public class TelaUsuario {
         btnLimpar.setOnAction(e -> limparFormulario());
 
         HBox botoesAcao = new HBox(10, btnSalvar, btnExcluir);
+        botoesAcao.setFillHeight(true);
+        botoesAcao.setMaxWidth(Double.MAX_VALUE);
+
+        btnSalvar.setMaxWidth(Double.MAX_VALUE);
+        btnExcluir.setMaxWidth(Double.MAX_VALUE);
+
+        HBox.setHgrow(btnSalvar, Priority.ALWAYS);
+        HBox.setHgrow(btnExcluir, Priority.ALWAYS);
+        btnSalvar.prefWidthProperty().bind(botoesAcao.widthProperty().subtract(botoesAcao.getSpacing()).divide(2));
+        btnExcluir.prefWidthProperty().bind(botoesAcao.widthProperty().subtract(botoesAcao.getSpacing()).divide(2));
+        btnSalvar.setMinWidth(0);
+        btnExcluir.setMinWidth(0);
 
         // === Monta o formulário ===
         VBox form = new VBox(8);

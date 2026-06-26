@@ -359,13 +359,11 @@ public class TelaContrato {
 
         // === Botões ===
         Button btnSalvar = new Button("Salvar");
-        btnSalvar.setPrefWidth(130);
         btnSalvar.setMaxWidth(Double.MAX_VALUE);
         btnSalvar.setStyle(estiloBotaoPrimario());
         btnSalvar.setOnAction(e -> salvarContrato());
 
         Button btnExcluir = new Button("Excluir");
-        btnExcluir.setPrefWidth(130);
         btnExcluir.setMaxWidth(Double.MAX_VALUE);
         btnExcluir.setStyle(estiloBotaoDestrutivo());
         btnExcluir.setOnAction(e -> excluirContrato());
@@ -374,12 +372,10 @@ public class TelaContrato {
         botoesAcao.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(btnSalvar, Priority.ALWAYS);
         HBox.setHgrow(btnExcluir, Priority.ALWAYS);
-
-        Button btnLimpar = new Button("Novo Contrato");
-        btnLimpar.setPrefWidth(270);
-        btnLimpar.setMaxWidth(Double.MAX_VALUE);
-        btnLimpar.setStyle(estiloBotaoSecundario());
-        btnLimpar.setOnAction(e -> limparFormularioContrato());
+        btnSalvar.prefWidthProperty().bind(botoesAcao.widthProperty().subtract(botoesAcao.getSpacing()).divide(2));
+        btnExcluir.prefWidthProperty().bind(botoesAcao.widthProperty().subtract(botoesAcao.getSpacing()).divide(2));
+        btnSalvar.setMinWidth(0);
+        btnExcluir.setMinWidth(0);
 
         // === Monta ===
         VBox form = new VBox(8);
@@ -410,8 +406,7 @@ public class TelaContrato {
                 new Label("Status:"), cbStatus,
                 new Label("Observações:"), txtObservacoes,
                 new Separator(),
-                botoesAcao,
-                btnLimpar
+                botoesAcao
         );
 
         return form;
@@ -467,6 +462,15 @@ public class TelaContrato {
         btnLimparClausula.setOnAction(e -> limparFormularioClausula());
 
         HBox botoesClausula = new HBox(5, btnAddClausula, btnExcClausula, btnLimparClausula);
+        HBox.setHgrow(btnAddClausula, Priority.ALWAYS);
+        HBox.setHgrow(btnExcClausula, Priority.ALWAYS);
+        HBox.setHgrow(btnLimparClausula, Priority.ALWAYS);
+        btnAddClausula.prefWidthProperty().bind(botoesClausula.widthProperty().subtract(botoesClausula.getSpacing()).divide(3));
+        btnExcClausula.prefWidthProperty().bind(botoesClausula.widthProperty().subtract(botoesClausula.getSpacing()).divide(3));
+        btnLimparClausula.prefWidthProperty().bind(botoesClausula.widthProperty().subtract(botoesClausula.getSpacing()).divide(3));
+        btnAddClausula.setMinWidth(0);
+        btnExcClausula.setMinWidth(0);
+        btnLimparClausula.setMinWidth(0);
 
         // --- Mini-tabela de cláusulas ---
         tabelaClausulas = new TableView<>();
@@ -552,10 +556,6 @@ public class TelaContrato {
         btnPesquisar.setStyle(estiloBotaoPrimario());
         btnPesquisar.setOnAction(e -> pesquisarContratos());
 
-        Button btnListarTodos = new Button("Listar todos");
-        btnListarTodos.setStyle(estiloBotaoSecundario());
-        btnListarTodos.setOnAction(e -> atualizarTabelaContratos());
-
         Button btnNovoContrato = new Button("Novo contrato");
         btnNovoContrato.setStyle(estiloBotaoPrimario());
         btnNovoContrato.setOnAction(e -> {
@@ -565,7 +565,7 @@ public class TelaContrato {
 
         txtPesquisa.setOnAction(e -> pesquisarContratos());
 
-        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar, btnListarTodos, btnNovoContrato);
+        HBox barraPesquisa = new HBox(10, txtPesquisa, btnPesquisar, btnNovoContrato);
         barraPesquisa.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(txtPesquisa, Priority.ALWAYS);
 
@@ -725,15 +725,11 @@ public class TelaContrato {
         lblVisualizacaoResumo.setWrapText(true);
         lblVisualizacaoResumo.setStyle("-fx-text-fill: #5f6c7b; -fx-font-size: 12px;");
 
-        Button btnEditar = new Button("Novo contrato");
-        btnEditar.setStyle(estiloBotaoPrimario());
-        btnEditar.setOnAction(e -> abrirVisualizacaoContrato(null));
-
         Button btnFechar = new Button("Fechar");
         btnFechar.setStyle(estiloBotaoSecundario());
         btnFechar.setOnAction(e -> fecharVisualizacaoContrato());
 
-        HBox acoes = new HBox(10, btnEditar, btnFechar);
+        HBox acoes = new HBox(10, btnFechar);
         acoes.setAlignment(Pos.CENTER_RIGHT);
 
         ScrollPane scrollForm = new ScrollPane(formContrato);
@@ -804,8 +800,8 @@ public class TelaContrato {
 
         lblVisualizacaoTitulo.setText("Contrato " + textoOuPadrao(contratoSelecionado.getNumeroContrato(), "sem numero"));
         lblVisualizacaoResumo.setText(textoOuPadrao(contratoSelecionado.getParceiroNome(), "Parceiro nao informado")
-                + " � " + textoOuPadrao(contratoSelecionado.getStatus(), "Status nao informado")
-                + " � vigencia " + formatarData(contratoSelecionado.getDataInicio()) + " ate "
+                + " � " + textoOuPadrao(contratoSelecionado.getStatus(), "Status nao informado")
+                + " � vigencia " + formatarData(contratoSelecionado.getDataInicio()) + " ate "
                 + formatarData(contratoSelecionado.getDataFim()));
     }
 

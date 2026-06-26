@@ -245,19 +245,16 @@ public class TelaParceiro {
 
         // === Botões de ação ===
         Button btnSalvar = new Button("Salvar");
-        btnSalvar.setPrefWidth(120);
         btnSalvar.setMaxWidth(Double.MAX_VALUE);
         btnSalvar.setStyle(estiloBotaoPrimario());
         btnSalvar.setOnAction(e -> salvar());
 
         Button btnExcluir = new Button("Excluir");
-        btnExcluir.setPrefWidth(120);
         btnExcluir.setMaxWidth(Double.MAX_VALUE);
         btnExcluir.setStyle(estiloBotaoDestrutivo());
         btnExcluir.setOnAction(e -> excluir());
 
         Button btnLimpar = new Button("Limpar");
-        btnLimpar.setPrefWidth(250);
         btnLimpar.setMaxWidth(Double.MAX_VALUE);
         btnLimpar.setStyle(estiloBotaoSecundario());
         btnLimpar.setOnAction(e -> limparFormulario());
@@ -266,6 +263,10 @@ public class TelaParceiro {
         botoesAcao.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(btnSalvar, Priority.ALWAYS);
         HBox.setHgrow(btnExcluir, Priority.ALWAYS);
+        btnSalvar.prefWidthProperty().bind(botoesAcao.widthProperty().subtract(botoesAcao.getSpacing()).divide(2));
+        btnExcluir.prefWidthProperty().bind(botoesAcao.widthProperty().subtract(botoesAcao.getSpacing()).divide(2));
+        btnSalvar.setMinWidth(0);
+        btnExcluir.setMinWidth(0);
 
         // === Monta o formulário ===
         VBox form = new VBox(8);

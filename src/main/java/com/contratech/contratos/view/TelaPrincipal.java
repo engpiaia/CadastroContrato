@@ -127,7 +127,7 @@ public class TelaPrincipal {
         HBox.setHgrow(painelCentral.getChildren().get(2), Priority.ALWAYS);
 
         Label lblSecaoAnalise = criarLabelSecao("Analises e prioridades");
-        Label lblSecaoAcoes = criarLabelSecao("Acoes rapidas");
+        // Label lblSecaoAcoes = criarLabelSecao("Acoes rapidas");
 
         VBox blocosCentrais = new VBox(10);
         blocosCentrais.setFillWidth(true);
@@ -136,7 +136,7 @@ public class TelaPrincipal {
         blocosCentrais.getChildren().addAll(
                 lblSecaoAnalise,
                 painelCentral,
-                lblSecaoAcoes,
+                // lblSecaoAcoes,
                 acoesRapidas
         );
 
