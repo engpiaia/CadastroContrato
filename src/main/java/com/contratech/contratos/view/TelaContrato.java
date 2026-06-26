@@ -382,7 +382,7 @@ public class TelaContrato {
         VBox form = new VBox(8);
         form.setPadding(new Insets(15));
         form.setMinWidth(340);
-        form.setMaxWidth(450);
+        form.setMaxWidth(Double.MAX_VALUE);
         form.setStyle("-fx-background-color: white; -fx-background-radius: 14;"
                 + "-fx-border-color: #dbe5ec; -fx-border-radius: 14;"
                 + "-fx-effect: dropshadow(gaussian, rgba(20,35,50,0.10), 14,0,0,4);");
@@ -746,8 +746,8 @@ public class TelaContrato {
         HBox conteudo = new HBox(18, scrollForm, scrollClausulas);
         HBox.setHgrow(scrollForm, Priority.ALWAYS);
         HBox.setHgrow(scrollClausulas, Priority.ALWAYS);
-        scrollForm.prefWidthProperty().bind(conteudo.widthProperty().multiply(0.42));
-        scrollClausulas.prefWidthProperty().bind(conteudo.widthProperty().multiply(0.58));
+        scrollForm.prefWidthProperty().bind(conteudo.widthProperty().multiply(0.46));
+        scrollClausulas.prefWidthProperty().bind(conteudo.widthProperty().multiply(0.54));
 
         VBox card = new VBox(16, lblVisualizacaoTitulo, lblVisualizacaoResumo, conteudo, acoes);
         card.setMaxWidth(Double.MAX_VALUE);
@@ -1619,3 +1619,4 @@ public class TelaContrato {
         return badge;
     }
 }
+

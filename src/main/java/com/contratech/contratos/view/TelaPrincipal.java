@@ -31,6 +31,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -112,7 +113,7 @@ public class TelaPrincipal {
         Label lblSecaoIndicadores = criarLabelSecao("Visao geral");
         HBox prioridades = criarFaixasPrioridade(resumo);
 
-        HBox painelCentral = new HBox(18,
+        HBox painelCentral = new HBox(10,
                 criarPainelAgrupamento("Contratos por tipo", resumo.getContratosPorTipo()),
                 criarPainelAgrupamento("Contratos por status", resumo.getContratosPorStatus()),
                 criarPainelVencimentos(resumo.getVencimentosCriticos())
@@ -122,26 +123,36 @@ public class TelaPrincipal {
         HBox.setHgrow(painelCentral.getChildren().get(1), Priority.ALWAYS);
         HBox.setHgrow(painelCentral.getChildren().get(2), Priority.ALWAYS);
 
-        HBox acoesRapidas = criarAcoesRapidas(resumo);
         Label lblSecaoAnalise = criarLabelSecao("Analises e prioridades");
         Label lblSecaoAcoes = criarLabelSecao("Acoes rapidas");
 
-        VBox conteudo = new VBox(18,
-                lblSecaoIndicadores,
-                indicadores,
-                prioridades,
+        VBox blocosCentrais = new VBox(10);
+        blocosCentrais.setFillWidth(true);
+
+        FlowPane acoesRapidas = criarAcoesRapidas(resumo, blocosCentrais);
+        blocosCentrais.getChildren().addAll(
                 lblSecaoAnalise,
                 painelCentral,
                 lblSecaoAcoes,
                 acoesRapidas
         );
-        conteudo.setPadding(new Insets(26));
-        conteudo.setFillWidth(true);
 
-        ScrollPane scroll = new ScrollPane(conteudo);
-        scroll.setFitToWidth(true);
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setStyle("-fx-background-color: transparent;");
+        ScrollPane scrollBlocosCentrais = new ScrollPane(blocosCentrais);
+        scrollBlocosCentrais.setFitToWidth(true);
+        scrollBlocosCentrais.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollBlocosCentrais.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollBlocosCentrais.setPannable(true);
+        scrollBlocosCentrais.setStyle("-fx-background-color: transparent;");
+
+        VBox conteudo = new VBox(12,
+                lblSecaoIndicadores,
+                indicadores,
+                prioridades,
+                scrollBlocosCentrais
+        );
+        conteudo.setPadding(new Insets(12));
+        conteudo.setFillWidth(true);
+        VBox.setVgrow(scrollBlocosCentrais, Priority.ALWAYS);
 
         Label rodapeTxt = new Label("Sistema Contratech - v1.0");
         rodapeTxt.setStyle("-fx-text-fill: #95a5a6;");
@@ -152,7 +163,7 @@ public class TelaPrincipal {
 
         BorderPane root = new BorderPane();
         root.setTop(header);
-        root.setCenter(scroll);
+        root.setCenter(conteudo);
         root.setBottom(footer);
         root.setStyle("-fx-background-color: linear-gradient(to bottom, #eef3f8, #dce6f1);");
 
@@ -244,8 +255,8 @@ public class TelaPrincipal {
         }
 
         VBox painel = new VBox(12, lblTitulo, new Separator(), linhas);
-        painel.setPadding(new Insets(16));
-        painel.setMinHeight(230);
+        painel.setPadding(new Insets(10));
+        painel.setMinHeight(160);
         painel.setMaxWidth(Double.MAX_VALUE);
         painel.setStyle(
                 "-fx-background-color: white;"
@@ -308,8 +319,8 @@ public class TelaPrincipal {
         }
 
         VBox painel = new VBox(12, lblTitulo, new Separator(), lista);
-        painel.setPadding(new Insets(16));
-        painel.setMinHeight(230);
+        painel.setPadding(new Insets(10));
+        painel.setMinHeight(160);
         painel.setMaxWidth(Double.MAX_VALUE);
         painel.setStyle(
                 "-fx-background-color: white;"
@@ -322,7 +333,7 @@ public class TelaPrincipal {
     }
 
     private HBox criarFaixasPrioridade(DashboardResumo resumo) {
-        HBox faixas = new HBox(14,
+        HBox faixas = new HBox(10,
                 criarFaixaPrioridade(
                         "Urgente",
                         resumo.getContratosVencidos() + " contrato(s) vencido(s)",
@@ -363,8 +374,8 @@ public class TelaPrincipal {
         lblDetalhe.setWrapText(true);
         lblDetalhe.setStyle("-fx-text-fill: #6b7280;");
 
-        VBox box = new VBox(6, lblTitulo, lblDestaque, lblDetalhe);
-        box.setPadding(new Insets(16));
+        VBox box = new VBox(5, lblTitulo, lblDestaque, lblDetalhe);
+        box.setPadding(new Insets(10));
         box.setMaxWidth(Double.MAX_VALUE);
         box.setStyle("-fx-background-color: " + fundo + ";"
                 + "-fx-background-radius: 14;"
@@ -435,7 +446,7 @@ public class TelaPrincipal {
                 : "#ef6c00";
     }
 
-    private HBox criarAcoesRapidas(DashboardResumo resumo) {
+    private FlowPane criarAcoesRapidas(DashboardResumo resumo, Region areaReferencia) {
         Button btnUsuarios = criarCard("U", "Usuarios");
         Button btnParceiros = criarCard("P", "Parceiros");
         Button btnContratos = criarCard("C", "Contratos (" + (resumo.getContratosVencidos() + resumo.getContratosAVencer()) + ")");
@@ -456,25 +467,30 @@ public class TelaPrincipal {
             btnUsuarios.setTooltip(new Tooltip("Somente ADMIN"));
         }
 
-        HBox menu = new HBox(28, btnUsuarios, btnParceiros, btnContratos);
+        FlowPane menu = new FlowPane(10, 10, btnUsuarios, btnParceiros, btnContratos);
         menu.setAlignment(Pos.CENTER);
-        menu.setPadding(new Insets(10, 0, 10, 0));
+        menu.setPrefWrapLength(540);
+        menu.prefWrapLengthProperty().bind(areaReferencia.widthProperty().subtract(24));
+        menu.setMaxWidth(Double.MAX_VALUE);
+        menu.setPadding(new Insets(0, 0, 4, 0));
         return menu;
     }
 
     private Button criarCard(String sigla, String texto) {
         Button btn = new Button();
-        btn.setPrefSize(220, 135);
+        btn.setPrefSize(168, 88);
+        btn.setMinSize(168, 88);
+        btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         Label icon = new Label(sigla);
-        icon.setFont(Font.font("Segoe UI", FontWeight.BOLD, 38));
+        icon.setFont(Font.font("Segoe UI", FontWeight.BOLD, 28));
         icon.setStyle("-fx-text-fill: #4ca1af;");
 
         Label titulo = new Label(texto);
-        titulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
+        titulo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
         titulo.setStyle("-fx-text-fill: #2c3e50;");
 
-        VBox box = new VBox(10, icon, titulo);
+        VBox box = new VBox(4, icon, titulo);
         box.setAlignment(Pos.CENTER);
 
         btn.setGraphic(box);
